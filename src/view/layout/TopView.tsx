@@ -11,34 +11,18 @@
 import React from "react";
 import {Button, Card, Input} from "element-react";
 
-interface Props {
+interface PropTypes {
   listKey: Function
 }
 
-export class TopView extends React.Component<Props, {}> {
+export class TopView extends React.Component<PropTypes, {}> {
 
   state = {
-    url: ''
+    url: 'work.server.c332030.com:2379'
   };
 
-  constructor(props: Props) {
-    super(props);
-
-    this.listKey.bind(this);
-    this.setUrl.bind(this);
-  }
-
   listKey() {
-
-  }
-
-  setUrl(event: React.SyntheticEvent<HTMLInputElement>){
-
-    console.log(event);
-
-    // this.setState({
-    //   url: url
-    // });
+    this.props.listKey(this.state.url);
   }
 
   render(): React.ReactElement<any, string | React.JSXElementConstructor<any>> | string | number | {} | React.ReactNodeArray | React.ReactPortal | boolean | null | undefined {
@@ -52,10 +36,14 @@ export class TopView extends React.Component<Props, {}> {
             prepend="http://"
             append={
               <Button type="primary" icon="search"
-                onClick={ this.listKey }
+                onClick={ this.listKey.bind(this) }
               >查询</Button>
             }
-            onChange={ this.setUrl }
+            onChange={ (url) => {
+              this.setState({
+                url: url
+              })
+            } }
           />
         </Card>
       </>

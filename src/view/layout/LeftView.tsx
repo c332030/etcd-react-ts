@@ -21,7 +21,11 @@ import {
   ,TreeOptions
 } from '@c332030/common-element-ui-ts'
 
-export class LeftView extends React.Component{
+interface PropTypes {
+  setThis: Function
+}
+
+export class LeftView extends React.Component<PropTypes, {}>{
 
   tree: Tree | null = null;
 
@@ -32,10 +36,22 @@ export class LeftView extends React.Component{
 
   state: EtcdNode = {};
 
-  constructor(props: Object){
+  constructor(props: PropTypes){
     super(props);
 
+    this.props.setThis(this);
     // AxiosUtils.get('');
+  }
+
+  public listKey(url: String) {
+    console.log(`LeftView url= ${url}`);
+
+    // axiosUtils.post(url, {ccc: 33}).then(e => {
+    //   console.log(e);
+    // }).catch(e => {
+    //   console.log(e);
+    // });
+
   }
 
   render(): React.ReactElement<any, string | React.JSXElementConstructor<any>> | string | number | {} | React.ReactNodeArray | React.ReactPortal | boolean | null | undefined {

@@ -23,49 +23,49 @@ import {
 
 import {AxiosRequestConfig} from "axios";
 
+interface StateTypes {
+  fullscreen?: boolean
+
+  view: {
+    top?: TopView
+    left?: LeftView
+    CenterView?: CenterView
+  }
+}
 
 class Home extends React.Component {
 
-  state = {
-    fullscreen: false,
-
-    view: {
-      top: null
-      ,left: null
-      ,center: null
-    }
+  state: StateTypes = {
+    view: {}
   };
 
-  constructor(props: Readonly<any>) {
-    super(props);
-
-    this.listKey.bind(this);
+  setLeft(_this: LeftView){
+    this.setState({
+      view: {
+        left: _this
+      }
+    });
   }
 
-  listKey() {
+  listKey(url: string) {
+    console.log(`是吧 url= ${url}`);
 
+    let left: LeftView | undefined = this.state.view.left;
+    left && left.listKey(url);
   }
 
   render(): React.ReactElement<any, string | React.JSXElementConstructor<any>> | string | number | {} | React.ReactNodeArray | React.ReactPortal | boolean | null | undefined {
-
-    let url = 'http://work.server.c332030.com:2379/v2/keys';
-
-    // axiosUtils.post(url, {ccc: 33}).then(e => {
-    //   console.log(e);
-    // }).catch(e => {
-    //   console.log(e);
-    // });
 
     return (
       <>
         <Layout.Row>
           <Layout.Col span={"8"} offset={'8'}>
-            <TopView listKey={ this.listKey } />
+            <TopView listKey={ this.listKey.bind(this) } />
           </Layout.Col>
         </Layout.Row>
         <Layout.Row>
           <Layout.Col span={"4"} offset={'4'}>
-            <LeftView/>
+            <LeftView setThis={this.setLeft.bind(this)} />
           </Layout.Col>
           <Layout.Col span={"8"}>
             <CenterView/>
