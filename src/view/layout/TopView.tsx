@@ -11,20 +11,54 @@
 import React from "react";
 import {Button, Card, Input} from "element-react";
 
-const TopView: React.FC = () => {
+interface Props {
+  listKey: Function
+}
 
-  return (
-    <>
-      <Card
-        className="box-card"
-      >
-        <Input placeholder="请输入内容"
-          prepend="http://"
-          append={<Button type="primary" icon="search">搜索</Button>}
-        />
-      </Card>
-    </>
-  );
-};
+export class TopView extends React.Component<Props, {}> {
 
-export default TopView;
+  state = {
+    url: ''
+  };
+
+  constructor(props: Props) {
+    super(props);
+
+    this.listKey.bind(this);
+    this.setUrl.bind(this);
+  }
+
+  listKey() {
+
+  }
+
+  setUrl(event: React.SyntheticEvent<HTMLInputElement>){
+
+    console.log(event);
+
+    // this.setState({
+    //   url: url
+    // });
+  }
+
+  render(): React.ReactElement<any, string | React.JSXElementConstructor<any>> | string | number | {} | React.ReactNodeArray | React.ReactPortal | boolean | null | undefined {
+    return (
+      <>
+        <Card
+          className="box-card"
+        >
+          <Input placeholder="请输入内容"
+            value={ this.state.url }
+            prepend="http://"
+            append={
+              <Button type="primary" icon="search"
+                onClick={ this.listKey }
+              >查询</Button>
+            }
+            onChange={ this.setUrl }
+          />
+        </Card>
+      </>
+    );
+  }
+}

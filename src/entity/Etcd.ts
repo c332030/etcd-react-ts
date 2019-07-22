@@ -5,24 +5,24 @@
  * @date 2019-7-12 17:57
  */
 
-import Node from "./EtcdNode";
+import {
+  EtcdNode
+} from "./EtcdNode";
 
-interface Etcd {
+export interface Etcd {
 
   /**
    * 类型
    */
-  action: string
+  action?: string
 
   /**
    * 节点信息
    */
-  node: Node
+  node?: EtcdNode
 
   /**
    * 原节点信息
    */
-  prevNode: Node
+  prevNode?: EtcdNode
 }
-
-export default Etcd;

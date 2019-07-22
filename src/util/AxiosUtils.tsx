@@ -7,23 +7,25 @@
  * @date 2019-7-16 10:09
  */
 
-import axios, {AxiosInstance} from 'axios';
+import axios, {AxiosInstance, AxiosRequestConfig} from 'axios';
 
 import {
-  Request
+  Tools
+} from '@c332030/common-utils-ts'
+
+import {
+  AxiosConfig
 } from '@c332030/common-http-ts'
 
 /**
- * 配置文件地址
+ * 配置信息
  */
-const configUrl = '/config.json';
-
 class AxiosUtils {
 
   /**
    * Axios 配置信息
    */
-  public axiosConfig: Request = {
+  private axiosConfig: AxiosConfig = {
     proxy: {
       url: 'http://localhost:404'
     }
@@ -79,14 +81,18 @@ class AxiosUtils {
       console.log(config);
 
       const url = config.url;
+      const configUrl = Tools.get<string>(this.axiosConfig, 'proxy.url');
+
+      Tools.notEmpty(configUrl, '代理链接为空');
+
       if(url === configUrl) {
         return config;
       }
 
-      config.url = this.axiosConfig.proxy.url;
+      config.url = configUrl;
 
       console.log(config);
-      let data: Request = config.data;
+      let data = config.data;
       if(!data) {
         data = {};
       }

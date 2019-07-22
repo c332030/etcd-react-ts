@@ -8,7 +8,7 @@
  * @date 2019-7-12 18:15
  */
 
-enum EtcdHeader {
+export enum EtcdHeader {
 
   /**
    * 当前etcd指数
@@ -25,5 +25,3 @@ enum EtcdHeader {
    */
   'X-Raft-Term'
 }
-
-export default EtcdHeader;

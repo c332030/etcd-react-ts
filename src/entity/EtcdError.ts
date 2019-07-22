@@ -5,7 +5,7 @@
  * @date 2019-7-12 18:11
  */
 
-interface EtcdError {
+export interface EtcdError {
 
   /**
    * 错误 键
@@ -27,5 +27,3 @@ interface EtcdError {
    */
   index: number
 }
-
-export default EtcdError;

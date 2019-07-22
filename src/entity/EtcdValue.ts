@@ -7,10 +7,8 @@
  * @date 2019-7-12 18:28
  */
 
-interface EtcdValue {
+export interface EtcdValue {
   value: string
 
   comment: string
 }
-
-export default EtcdValue;

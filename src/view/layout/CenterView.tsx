@@ -8,7 +8,7 @@
  */
 import React from "react";
 
-class CenterView extends React.Component {
+export class CenterView extends React.Component {
 
   state = {
     key: ''
@@ -28,5 +28,3 @@ class CenterView extends React.Component {
     );
   }
 }
-
-export default CenterView;

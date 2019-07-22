@@ -5,49 +5,49 @@
  * @date 2019-7-12 18:09
  */
 
-import EtcdValue from "./EtcdValue";
+import {
+  EtcdValue
+} from "./EtcdValue";
 
-interface EtcdNode {
+export interface EtcdNode {
 
   /**
    * 键
    */
-  key: string
+  key?: string
 
   /**
    * 值
    */
-  value: EtcdValue
+  value?: EtcdValue
 
   /**
    * 是否为目录
    */
-  dir: boolean
+  dir?: boolean
 
   /**
    * 目录下的值
    */
-  nodes: EtcdNode[]
+  nodes?: EtcdNode[]
 
   /**
    * 创建时的索引
    */
-  createdIndex: number
+  createdIndex?: number
 
   /**
    * 修改时的索引
    */
-  modifiedIndex: number
+  modifiedIndex?: number
 
   /**
    * 过期时间
    */
-  expiration: string
+  expiration?: string
 
   /**
    * 生存时间，单位：秒
    */
-  ttl: number
+  ttl?: number
 }
-
-export default EtcdNode;
