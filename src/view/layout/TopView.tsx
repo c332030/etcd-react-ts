@@ -22,7 +22,7 @@ export class TopView extends React.Component<PropTypes, {}> {
   };
 
   listKey() {
-    this.props.listKey(this.state.url);
+    this.props.listKey('http://' + this.state.url + '/v2/keys');
   }
 
   render(): React.ReactElement<any, string | React.JSXElementConstructor<any>> | string | number | {} | React.ReactNodeArray | React.ReactPortal | boolean | null | undefined {

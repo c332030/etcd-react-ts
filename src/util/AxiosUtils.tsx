@@ -117,7 +117,7 @@ class AxiosUtils {
      * 添加 返回报文 拦截器
      */
     this.axiosInstance.interceptors.response.use(response => {
-      return Promise.reject(response);
+      return Promise.resolve(response);
     }, response => {
       return Promise.reject(response);
     });
