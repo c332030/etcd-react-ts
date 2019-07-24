@@ -78,7 +78,7 @@ class AxiosUtils {
      */
     this.axiosInstance.interceptors.request.use((config) => {
 
-      console.log(config);
+      // console.log(config);
 
       const url = config.url;
       const configUrl = Tools.get<string>(this.axiosConfig, 'proxy.url');
@@ -91,7 +91,7 @@ class AxiosUtils {
 
       config.url = configUrl;
 
-      console.log(config);
+      // console.log(config);
       let data = config.data;
       if(!data) {
         data = {};

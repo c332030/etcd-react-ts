@@ -13,6 +13,8 @@ import {Button, Card, Input, Select} from "element-react";
 
 
 interface PropTypes {
+  loading: Function
+
   listKey: Function
 }
 
@@ -33,6 +35,9 @@ export class TopView extends React.Component<PropTypes, {}> {
   };
 
   listKey() {
+
+    this.props.loading(true);
+
     this.props.listKey(
       this.state.prepend
       + this.state.url

@@ -29,6 +29,7 @@ import {
  * Prop 类型
  */
 interface PropTypes {
+  loading: Function
   setThis: Function
 }
 
@@ -56,8 +57,12 @@ export class LeftView extends React.Component<PropTypes, {}>{
     this.listKey.bind(this);
   }
 
+  /**
+   * 加载 key 树
+   * @param url Edcd 链接
+   */
   public listKey(url: string) {
-    console.log(`LeftView url= ${url}`);
+    // console.log(`LeftView url= ${url}`);
 
     this.setState({
       url: url
@@ -67,6 +72,7 @@ export class LeftView extends React.Component<PropTypes, {}>{
 
       const nodes: EtcdNode[] | undefined = Tools.get(e, 'data.node.nodes');
       if(!nodes) {
+        this.props.loading(false);
         Message.error('无节点');
         return;
       }
@@ -81,13 +87,21 @@ export class LeftView extends React.Component<PropTypes, {}>{
         }
       });
 
+      this.props.loading(false);
       Message.success('查询成功');
     }).catch(e => {
 
+      console.log(e);
+      this.props.loading(false);
       Message.error('查询失败');
     });
   }
 
+  /**
+   * 懒加载节点
+   * @param data 节点
+   * @param resolve 加载子节点的函数
+   */
   public loadNode(data: any, resolve: Function) {
 
     const parentNode = data.data;
@@ -98,8 +112,11 @@ export class LeftView extends React.Component<PropTypes, {}>{
 
     AxiosUtils.post(this.state.url + parentNode.key).then(e => {
 
-      const childNode: EtcdNode = e.data.node;
-      const childNodes: EtcdNode[] = childNode.nodes ? childNode.nodes : [] ;
+      const childNodes: EtcdNode[] | undefined = Tools.get(e, 'data.node.nodes');
+      if(!childNodes) {
+        resolve([]);
+        return
+      }
 
       // 删除树已有的前缀
       childNodes.forEach(nodeE => {
@@ -108,6 +125,7 @@ export class LeftView extends React.Component<PropTypes, {}>{
           return;
         }
 
+        // 处理 key 生成 label，避免 key 太长，使用 label 显示
         nodeE.label = keyE.substr(parentNode.key.length + 1);
       });
 
@@ -128,7 +146,7 @@ export class LeftView extends React.Component<PropTypes, {}>{
           ref={e => this.tree = e}
           className="filter-tree"
           data={ this.state.node.nodes }
-          options={this.options}
+          options={ this.options }
           nodeKey="key"
           defaultExpandAll={false}
           filterNodeMethod={(value, data) => {
@@ -136,7 +154,7 @@ export class LeftView extends React.Component<PropTypes, {}>{
             return data.key.indexOf(value) !== -1;
           }}
 
-          lazy={true}
+          lazy={ true }
           load={ this.loadNode.bind(this) }
         />
       </>
