@@ -64,7 +64,7 @@ class Home extends React.Component {
         </Layout.Col>
         </Layout.Row>
         <Layout.Row>
-          <Layout.Col span={"4"} offset={'4'}>
+          <Layout.Col span={"6"} offset={'2'}>
             <LeftView setThis={this.setLeft.bind(this)} />
           </Layout.Col>
           <Layout.Col span={"8"}>

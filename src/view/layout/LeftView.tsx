@@ -37,7 +37,7 @@ export class LeftView extends React.Component<PropTypes, {}>{
   tree: Tree | null = null;
 
   options: TreeOptions = {
-    label: 'key',
+    label: 'label',
     children: 'nodes'
   };
 
@@ -65,9 +65,19 @@ export class LeftView extends React.Component<PropTypes, {}>{
 
     AxiosUtils.post(url).then(e => {
 
+      const nodes: EtcdNode[] | undefined = Tools.get(e, 'data.node.nodes');
+      if(!nodes) {
+        Message.error('无节点');
+        return;
+      }
+
+      nodes.forEach(nodeE => {
+        nodeE.label = nodeE.key ? nodeE.key.substr(1) : 'No key'
+      });
+
       this.setState({
         node: {
-          nodes: e.data.node.nodes
+          nodes: nodes
         }
       });
 
@@ -78,26 +88,31 @@ export class LeftView extends React.Component<PropTypes, {}>{
     });
   }
 
-  public loadNode(node: any, resolve: Function) {
-    console.log('node');
-    console.log(node);
+  public loadNode(data: any, resolve: Function) {
 
-    console.log('resolve');
-    console.log(resolve);
-
-    const etcdNode = node.data;
-    if(node.id ===0 || !etcdNode) {
+    const parentNode = data.data;
+    if(!parentNode || parentNode.id === 0 || !parentNode.dir) {
+      resolve([]);
       return;
     }
 
-    AxiosUtils.post(this.state.url + etcdNode.key).then(e => {
+    AxiosUtils.post(this.state.url + parentNode.key).then(e => {
 
-      console.log('get key');
-      console.log(e);
-      resolve(Tools.dealNull(e.data.node.nodes, []));
+      const childNode: EtcdNode = e.data.node;
+      const childNodes: EtcdNode[] = childNode.nodes ? childNode.nodes : [] ;
+
+      // 删除树已有的前缀
+      childNodes.forEach(nodeE => {
+        const keyE = nodeE.key;
+        if(!keyE) {
+          return;
+        }
+
+        nodeE.label = keyE.substr(parentNode.key.length + 1);
+      });
+
+      resolve(childNodes);
     }).catch(e => {
-
-      console.log('get key catch');
       console.log(e);
     });
   }

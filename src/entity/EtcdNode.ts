@@ -12,6 +12,11 @@ import {
 export interface EtcdNode {
 
   /**
+   * 名字
+   */
+  label?: string
+
+  /**
    * 键
    */
   key?: string

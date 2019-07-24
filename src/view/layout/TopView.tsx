@@ -22,9 +22,9 @@ export class TopView extends React.Component<PropTypes, {}> {
     prepend: 'http://'
     ,append: '/v2/keys'
 
-    ,url: 'work.server.c332030.com'
+    ,url: 'localhost'
+    // ,url: 'work.server.c332030.com'
     ,port: '2379'
-
 
     ,schemes: [
       'http://'
