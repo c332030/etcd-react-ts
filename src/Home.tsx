@@ -61,7 +61,7 @@ class Home extends React.Component {
         <Layout.Row>
           <Layout.Col span={"8"} offset={'8'}>
             <TopView listKey={ this.listKey.bind(this) } />
-          </Layout.Col>
+        </Layout.Col>
         </Layout.Row>
         <Layout.Row>
           <Layout.Col span={"4"} offset={'4'}>

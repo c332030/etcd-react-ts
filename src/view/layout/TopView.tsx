@@ -9,7 +9,8 @@
 
 
 import React from "react";
-import {Button, Card, Input} from "element-react";
+import {Button, Card, Input, Select} from "element-react";
+
 
 interface PropTypes {
   listKey: Function
@@ -18,11 +19,27 @@ interface PropTypes {
 export class TopView extends React.Component<PropTypes, {}> {
 
   state = {
-    url: 'work.server.c332030.com:2379'
+    prepend: 'http://'
+    ,append: '/v2/keys'
+
+    ,url: 'work.server.c332030.com'
+    ,port: '2379'
+
+
+    ,schemes: [
+      'http://'
+      ,'https://'
+    ]
   };
 
   listKey() {
-    this.props.listKey('http://' + this.state.url + '/v2/keys');
+    this.props.listKey(
+      this.state.prepend
+      + this.state.url
+      + ':'
+      + this.state.port
+      + this.state.append
+    );
   }
 
   render(): React.ReactElement<any, string | React.JSXElementConstructor<any>> | string | number | {} | React.ReactNodeArray | React.ReactPortal | boolean | null | undefined {
@@ -30,14 +47,26 @@ export class TopView extends React.Component<PropTypes, {}> {
       <>
         <Card
           className="box-card"
+          style={{
+            height: '10rem'
+          }}
         >
           <Input placeholder="请输入内容"
+            style={{
+              width: '18rem'
+            }}
             value={ this.state.url }
-            prepend="http://"
-            append={
-              <Button type="primary" icon="search"
-                onClick={ this.listKey.bind(this) }
-              >查询</Button>
+            prepend={
+              <Select value={ this.state.prepend }
+                style={ { width: '5.5rem' } }
+                onChange={ e => this.setState({prepend: e}) }
+              >
+                {
+                  this.state.schemes.map((scheme, index) =>
+                    <Select.Option key={index} label={scheme} value={scheme} />
+                  )
+                }
+              </Select>
             }
             onChange={ (url) => {
               this.setState({
@@ -45,6 +74,26 @@ export class TopView extends React.Component<PropTypes, {}> {
               })
             } }
           />
+          <span> : </span>
+          <Input
+            style={{
+              width: '4rem'
+            }}
+            value={ this.state.port }
+            onChange={ e => this.setState({port: e}) }
+          />
+          <span> / </span>
+          <Input
+            style={{
+              width: '6rem'
+            }}
+            value={ this.state.append }
+            onChange={ e => this.setState({append: e}) }
+          />
+          <span> </span>
+          <Button type="primary" icon="search"
+            onClick={ this.listKey.bind(this) }
+          >查询</Button>
         </Card>
       </>
     );
