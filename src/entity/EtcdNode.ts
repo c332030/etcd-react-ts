@@ -24,7 +24,7 @@ export interface EtcdNode {
   /**
    * 值
    */
-  value?: EtcdValue
+  value?: string
 
   /**
    * 是否为目录

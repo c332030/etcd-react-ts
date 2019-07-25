@@ -11,18 +11,6 @@ import {
   ,CenterView
 } from './view/layout';
 
-import axiosUtils from './util/AxiosUtils';
-
-import {
-  Tools
-} from '@c332030/common-utils-ts'
-
-import {
-  Request
-} from '@c332030/common-http-ts'
-
-import {AxiosRequestConfig} from "axios";
-
 /**
  * Props 类型定义
  */
@@ -39,7 +27,7 @@ interface StateTypes {
   view: {
     top?: TopView
     left?: LeftView
-    CenterView?: CenterView
+    center?: CenterView
   }
 }
 
@@ -61,11 +49,15 @@ class Home extends React.Component<PropsTypes, StateTypes> {
   }
 
   setLeft(_this: LeftView){
-    this.setState({
-      view: {
-        left: _this
-      }
-    });
+    /* eslint-disable */
+    this.state.view.left = _this;
+    /* eslint-enable */
+  }
+
+  setCenter(_this: CenterView){
+    /* eslint-disable */
+    this.state.view.center = _this;
+    /* eslint-enable */
   }
 
   listKey(url: string) {
@@ -79,9 +71,7 @@ class Home extends React.Component<PropsTypes, StateTypes> {
 
     return (
       <>
-        {
-          this.state.loading && <Loading fullscreen={ true } />
-        }
+        { this.state.loading && <Loading fullscreen={ true } /> }
         <Layout.Row>
           <Layout.Col span={"8"} offset={'8'}>
             <TopView listKey={ this.listKey.bind(this) } loading={ this.loading.bind(this) } />
@@ -89,10 +79,10 @@ class Home extends React.Component<PropsTypes, StateTypes> {
         </Layout.Row>
         <Layout.Row>
           <Layout.Col span={"6"} offset={'2'}>
-            <LeftView setThis={this.setLeft.bind(this)} loading={ this.loading.bind(this) } />
+            <LeftView setThis={this.setLeft.bind(this)} center={ this.state.view.center } loading={ this.loading.bind(this) } />
           </Layout.Col>
           <Layout.Col span={"8"}>
-            <CenterView/>
+            <CenterView setThis={ this.setCenter.bind(this) } loading={ this.loading.bind(this) } />
           </Layout.Col>
         </Layout.Row>
       </>

@@ -13,6 +13,7 @@ import {Input, Message, Tree} from "element-react";
 import AxiosUtils from '../../util/AxiosUtils'
 
 import {
+  Etcd,
   EtcdNode
 } from "../../entity";
 
@@ -21,9 +22,12 @@ import {
 } from '@c332030/common-utils-ts'
 
 import {
-  TreeEntity
-  ,TreeOptions
+  TreeOptions
 } from '@c332030/common-element-ui-ts'
+
+import {
+  CenterView
+} from "./CenterView";
 
 /**
  * Prop 类型
@@ -31,6 +35,8 @@ import {
 interface PropTypes {
   loading: Function
   setThis: Function
+
+  center?: CenterView
 }
 
 export class LeftView extends React.Component<PropTypes, {}>{
@@ -72,6 +78,7 @@ export class LeftView extends React.Component<PropTypes, {}>{
 
       const nodes: EtcdNode[] | undefined = Tools.get(e, 'data.node.nodes');
       if(!nodes) {
+
         this.props.loading(false);
         Message.error('无节点');
         return;
@@ -104,16 +111,24 @@ export class LeftView extends React.Component<PropTypes, {}>{
    */
   public loadNode(data: any, resolve: Function) {
 
-    const parentNode = data.data;
-    if(!parentNode || parentNode.id === 0 || !parentNode.dir) {
+    const node = data.data;
+
+    if(!node || node.id === 0) {
       resolve([]);
       return;
     }
 
-    AxiosUtils.post(this.state.url + parentNode.key).then(e => {
+    if(!node.dir) {
+
+      resolve([]);
+      return;
+    }
+
+    AxiosUtils.post(this.state.url + node.key).then(e => {
 
       const childNodes: EtcdNode[] | undefined = Tools.get(e, 'data.node.nodes');
       if(!childNodes) {
+
         resolve([]);
         return
       }
@@ -126,13 +141,24 @@ export class LeftView extends React.Component<PropTypes, {}>{
         }
 
         // 处理 key 生成 label，避免 key 太长，使用 label 显示
-        nodeE.label = keyE.substr(parentNode.key.length + 1);
+        nodeE.label = keyE.substr(node.key.length + 1);
       });
 
       resolve(childNodes);
     }).catch(e => {
       console.log(e);
     });
+  }
+
+  showNode(node: EtcdNode) {
+
+    const centerView = this.props.center;
+
+    if(!centerView) {
+      return
+    }
+
+    centerView.showNode(node);
   }
 
   render(): React.ReactElement<any, string | React.JSXElementConstructor<any>> | string | number | {} | React.ReactNodeArray | React.ReactPortal | boolean | null | undefined {
@@ -156,6 +182,8 @@ export class LeftView extends React.Component<PropTypes, {}>{
 
           lazy={ true }
           load={ this.loadNode.bind(this) }
+
+          onNodeClicked={ this.showNode.bind(this) }
         />
       </>
     );

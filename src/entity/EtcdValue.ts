@@ -8,6 +8,7 @@
  */
 
 export interface EtcdValue {
+
   value: string
 
   comment: string
