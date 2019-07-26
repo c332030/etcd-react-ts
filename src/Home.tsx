@@ -1,6 +1,7 @@
 import React from 'react';
 
 import {
+  Card,
   Layout, Loading
 } from 'element-react'
 import 'element-theme-default';
@@ -72,22 +73,70 @@ class Home extends React.Component<PropsTypes, StateTypes> {
     return (
       <>
         { this.state.loading && <Loading fullscreen={ true } /> }
-        <Layout.Row>
-          <Layout.Col span={"8"} offset={'8'}>
-            <TopView listKey={ this.listKey.bind(this) } loading={ this.loading.bind(this) } />
-        </Layout.Col>
-        </Layout.Row>
-        <Layout.Row>
-          <Layout.Col span={"6"} offset={'2'}>
-            <LeftView setThis={this.setLeft.bind(this)} center={ this.state.view.center } loading={ this.loading.bind(this) } />
-          </Layout.Col>
-          <Layout.Col span={"8"}>
+        <div
+          style={{
+            verticalAlign: 'top'
+            ,width: '90%'
+            ,margin: '0 auto'
+          }}
+        >
+          <div
+            style={{
+              padding: '20px'
+              ,width: '50rem'
+              ,margin: '0 auto'
+            }}
+          >
+            <TopView
+              listKey={ this.listKey.bind(this) }
+              loading={ this.loading.bind(this) }
+            />
+          </div>
+          <div
+            style={{
+              display: 'inline-block'
+              ,padding: '10px'
+              ,width: '25rem'
+            }}
+          >
+            <LeftView
+              setThis={this.setLeft.bind(this)}
+              center={ this.state.view.center }
+              loading={ this.loading.bind(this) }
+            />
+          </div>
+
+          <div
+            style={{
+              display: 'inline-block'
+              ,verticalAlign: 'top'
+              ,width: '40rem'
+              ,padding: '20px'
+              // ,border: '1px solid red'
+            }}
+          >
             <CenterView setThis={ this.setCenter.bind(this) } loading={ this.loading.bind(this) } />
-          </Layout.Col>
-        </Layout.Row>
+          </div>
+        </div>
       </>
     );
   }
 }
 
 export default Home;
+
+/*
+<Layout.Row>
+  <Layout.Col span={"8"} offset={'8'}>
+    <TopView listKey={ this.listKey.bind(this) } loading={ this.loading.bind(this) } />
+  </Layout.Col>
+</Layout.Row>
+<Layout.Row>
+  <Layout.Col span={"6"} offset={'2'}>
+    <LeftView setThis={this.setLeft.bind(this)} center={ this.state.view.center } loading={ this.loading.bind(this) } />
+  </Layout.Col>
+  <Layout.Col span={"8"}>
+    <CenterView setThis={ this.setCenter.bind(this) } loading={ this.loading.bind(this) } />
+  </Layout.Col>
+</Layout.Row>
+*/

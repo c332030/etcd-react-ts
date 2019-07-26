@@ -174,6 +174,7 @@ export class LeftView extends React.Component<PropTypes, {}>{
           options={ this.options }
           nodeKey="key"
           defaultExpandAll={false}
+          highlightCurrent={ true }
           filterNodeMethod={(value, data) => {
             if(!value) return true;
             return data.key.indexOf(value) !== -1;

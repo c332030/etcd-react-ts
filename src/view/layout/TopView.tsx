@@ -34,6 +34,16 @@ export class TopView extends React.Component<PropTypes, {}> {
     ]
   };
 
+  componentDidMount(): void {
+    if(this.state.prepend
+      && this.state.url
+      && this.state.port
+      && this.state.append
+    ) {
+      this.listKey.call(this);
+    }
+  }
+
   listKey() {
 
     this.props.loading(true);
@@ -50,56 +60,49 @@ export class TopView extends React.Component<PropTypes, {}> {
   render(): React.ReactElement<any, string | React.JSXElementConstructor<any>> | string | number | {} | React.ReactNodeArray | React.ReactPortal | boolean | null | undefined {
     return (
       <>
-        <Card
-          className="box-card"
+        <Input placeholder="请输入内容"
           style={{
-            height: '10rem'
+            width: '18rem'
           }}
-        >
-          <Input placeholder="请输入内容"
-            style={{
-              width: '18rem'
-            }}
-            value={ this.state.url }
-            prepend={
-              <Select value={ this.state.prepend }
-                style={ { width: '5.5rem' } }
-                onChange={ e => this.setState({prepend: e}) }
-              >
-                {
-                  this.state.schemes.map((scheme, index) =>
-                    <Select.Option key={index} label={scheme} value={scheme} />
-                  )
-                }
-              </Select>
-            }
-            onChange={ (url) => {
-              this.setState({
-                url: url
-              })
-            } }
-          />
-          <span> : </span>
-          <Input
-            style={{
-              width: '4rem'
-            }}
-            value={ this.state.port }
-            onChange={ e => this.setState({port: e}) }
-          />
-          <span> / </span>
-          <Input
-            style={{
-              width: '6rem'
-            }}
-            value={ this.state.append }
-            onChange={ e => this.setState({append: e}) }
-          />
-          <span> </span>
-          <Button type="primary" icon="search"
-            onClick={ this.listKey.bind(this) }
-          >查询</Button>
-        </Card>
+          value={ this.state.url }
+          prepend={
+            <Select value={ this.state.prepend }
+              style={ { width: '5.5rem' } }
+              onChange={ e => this.setState({prepend: e}) }
+            >
+              {
+                this.state.schemes.map((scheme, index) =>
+                  <Select.Option key={index} label={scheme} value={scheme} />
+                )
+              }
+            </Select>
+          }
+          onChange={ (url) => {
+            this.setState({
+              url: url
+            })
+          } }
+        />
+        <span> : </span>
+        <Input
+          style={{
+            width: '4rem'
+          }}
+          value={ this.state.port }
+          onChange={ e => this.setState({port: e}) }
+        />
+        <span> / </span>
+        <Input
+          style={{
+            width: '6rem'
+          }}
+          value={ this.state.append }
+          onChange={ e => this.setState({append: e}) }
+        />
+        <span> </span>
+        <Button type="primary" icon="search"
+          onClick={ this.listKey.bind(this) }
+        >查询</Button>
       </>
     );
   }
