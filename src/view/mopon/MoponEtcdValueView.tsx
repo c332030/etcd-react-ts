@@ -1,29 +1,28 @@
 import React from "react";
 
-/*
-const MoponEtcdValueView: React.FC = () => {
-  return (
-    <>
-    </>
-  );
-};
-*/
-
 import {
-  EtcdNode,
   EtcdValue
 } from '../../entity'
-import {Button, Form, Input, Message} from "element-react";
+
+import {Form, Input} from "element-react";
 
 import {
   Tools
 } from '@c332030/common-utils-ts'
 
+import {
+  KeyValueEnum
+} from '@c332030/common-constant-ts'
+
+import {
+  ReactUtils
+} from '@c332030/common-react-ts'
+
 /**
  * Prop 类型
  */
 interface PropTypes {
-  value?: string
+  value: string
 
   onChange: Function
 }
@@ -32,6 +31,7 @@ interface PropTypes {
  * State 类型
  */
 interface StateTypes {
+  formatJson: boolean
 }
 
 /**
@@ -44,11 +44,15 @@ interface StateTypes {
  */
 class MoponEtcdValueView extends React.Component <PropTypes, StateTypes> {
 
+  constructor(props: PropTypes) {
+    super(props);
+
+    this.state = {
+      formatJson: true
+    }
+  }
+
   onChange(value: string) {
-
-    console.log('onChange value');
-    console.log(value);
-
     this.props.onChange(value);
   }
 
@@ -56,41 +60,58 @@ class MoponEtcdValueView extends React.Component <PropTypes, StateTypes> {
     this.onChange.call(this, JSON.stringify(jsonValue));
   }
 
+  /**
+   * 普通字符串值类型的页面
+   * @param value
+   */
+  getValuePage(value: string | undefined) {
+    return (
+      <>
+        <Form.Item label={ Tools.get(KeyValueEnum, 'value') }>
+          <Input value={ value as string } onChange={ e => {
+            this.onChange.bind(this)(ReactUtils.getString(e));
+          }} />
+        </Form.Item>
+      </>
+    )
+  }
+
+  /**
+   * json类型值的页面
+   * @param jsonValue
+   */
+  getJsonValuePage(jsonValue: any) {
+    return (
+      <>
+      {
+        Object.keys(jsonValue).map((key: string) => {
+          return (
+            <Form.Item label={ Tools.get(KeyValueEnum, key) }>
+              <Input value={ jsonValue[key] } onChange={ (e) => {
+
+                jsonValue[key] = ReactUtils.getString(e);
+                this.onChangeOfJson.call(this, jsonValue);
+              }} />
+            </Form.Item>
+          );
+        })
+      }
+      </>
+    );
+  }
+
   render(): React.ReactElement<any, string | React.JSXElementConstructor<any>> | string | number | {} | React.ReactNodeArray | React.ReactPortal | boolean | null | undefined {
 
     const { value } = this.props;
 
-    if(!value || value.charAt(0) !== '{') {
-      return (
-        <>
-          <Form.Item label={ '值' }>
-            <Input value={ value as string } onChange={ e => {
-              this.setState({ value: e });
-            }} />
-          </Form.Item>
-          <Button onClick={ () => Message.info('更新') }>更新</Button>
-        </>
-      )
-    }
-
-    const jsonValue: EtcdValue = JSON.parse(value);
+    const isJson = value.charAt(0) !== '{';
 
     return (
       <>
-        <Form.Item label={ '值' }>
-          <Input value={ jsonValue.value } onChange={ e => {
-            jsonValue.value = e ? e.currentTarget.value : '';
-            this.onChangeOfJson.call(this, jsonValue);
-          }} />
-        </Form.Item>
-        <Form.Item label={ '注释' }>
-          <Input value={ jsonValue.comment } onChange={ e => {
-            jsonValue.comment = e ? e.currentTarget.value : '';
-            this.onChangeOfJson.call(this, jsonValue);
-          }}
-          />
-        </Form.Item>
-        <Button onClick={ () => { console.log(this.props.value) } }>更新</Button>
+        { (!this.state.formatJson || isJson)
+          ? this.getValuePage.call(this, value)
+          : this.getJsonValuePage.call(this, JSON.parse(value))
+        }
       </>
     );
   }

@@ -7,7 +7,7 @@
  * @date 2019-7-16 10:09
  */
 
-import axios, {AxiosInstance, AxiosRequestConfig} from 'axios';
+import axios, {AxiosInstance} from 'axios';
 
 import {
   Tools

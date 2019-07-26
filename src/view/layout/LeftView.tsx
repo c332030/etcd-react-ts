@@ -13,7 +13,6 @@ import {Input, Message, Tree} from "element-react";
 import AxiosUtils from '../../util/AxiosUtils'
 
 import {
-  Etcd,
   EtcdNode
 } from "../../entity";
 

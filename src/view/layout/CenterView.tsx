@@ -11,8 +11,23 @@ import React from "react";
 import {
   EtcdNode
 } from '../../entity'
-import {Card, Form, Input} from "element-react";
+import {Button, Card, Form, Input} from "element-react";
+
 import MoponEtcdValueView from "../mopon/MoponEtcdValueView";
+
+import {
+  Tools
+  ,StringUtils
+} from '@c332030/common-utils-ts'
+
+import {
+  KeyValueEnum
+} from '@c332030/common-constant-ts'
+
+import {
+  ReactUtils
+} from '@c332030/common-react-ts'
+
 
 /**
  * Prop 类型
@@ -27,16 +42,18 @@ interface PropTypes {
  */
 interface StateTypes {
   node: EtcdNode
-  form: {
-    value?: string
-  }
+
+  key: string
+  value: string
 }
 
 export class CenterView extends React.Component<PropTypes, StateTypes> {
 
   state:StateTypes = {
     node: {}
-    ,form: {}
+
+    ,key: ''
+    ,value: ''
   };
 
   constructor(props: PropTypes) {
@@ -55,12 +72,32 @@ export class CenterView extends React.Component<PropTypes, StateTypes> {
 
     this.setState({
       node: node
+
+      ,key: node.dir ? '' : StringUtils.dealNull(node.key)
+      ,value: StringUtils.dealNull(node.value)
     });
+  }
+
+  private onAdd(){
+    console.log('onAdd');
+    console.log(`add key= ${ this.state.key }`);
+    console.log(`add value= ${ this.state.value }`);
+  }
+
+  private onUpdate(){
+    console.log('onUpdate');
+    console.log(`update key= ${ this.state.node.key }`);
+    console.log(`update value= ${ this.state.value }`);
+  }
+
+  private onDelete(){
+    console.log('onUpdate');
+    console.log(`delete key= ${ this.state.node.key }`);
   }
 
   render(): React.ReactElement<any, string | React.JSXElementConstructor<any>> | string | number | {} | React.ReactNodeArray | React.ReactPortal | boolean | null | undefined {
 
-    const { node } = this.state;
+    const { node, key, value } = this.state;
 
     if(Object.keys(node).length === 0) {
       return (
@@ -75,16 +112,23 @@ export class CenterView extends React.Component<PropTypes, StateTypes> {
     return (
       <>
         <Card>
-          <div>
-            <span>节点类型：{ node.dir ? '目录' : '数据' }</span>
+          <div style={{ paddingBottom: '1rem' }}>
+            <span>节点类型：{ node.dir ? '目录：' + node.key : '数据' }</span>
           </div>
-          <Form labelWidth={ '4rem' } labelPosition={ 'right' }>
-            <Form.Item label={ '键' }>
-              <Input value={ node.key } readOnly={ true } />
+          <Form labelWidth={ '60' } labelPosition={ 'right' }>
+            <Form.Item label={ Tools.get(KeyValueEnum, 'key') }>
+              <Input value={ key } readOnly={ !node.dir } onChange={ e => {
+                this.setState({ key: ReactUtils.getString(e) });
+              }} />
             </Form.Item>
-            <MoponEtcdValueView value={ node.value } onChange={ (value: string) => {
-              this.setState({form: {value: value}})
-            }} />
+            <MoponEtcdValueView value={ value }
+              onChange={ (value: string) => {
+                this.setState({value: value})
+              }}
+            />
+            { node.dir && <Button onClick={ this.onAdd.bind(this) } >添加</Button> }
+            <Button onClick={ this.onUpdate.bind(this) }>更新</Button>
+            <Button onClick={ this.onDelete.bind(this) }>删除</Button>
           </Form>
         </Card>
       </>
