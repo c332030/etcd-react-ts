@@ -53,4 +53,12 @@ export class EtcdUtils {
   //     return (node1.key as string).localeCompare(node2.key  as string);
   //   });
   // }
+
+  /**
+   * 操作目录
+   * @param key
+   */
+  public static operateDir(key: string): string {
+    return key + '?dir=true';
+  }
 }

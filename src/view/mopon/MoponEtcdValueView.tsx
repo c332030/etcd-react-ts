@@ -1,10 +1,6 @@
 import React from "react";
 
-import {
-  EtcdValue
-} from '../../entity'
-
-import {Button, Form, Input} from "element-react";
+import {Form, Input} from "element-react";
 
 import {
   Tools
@@ -18,11 +14,17 @@ import {
   ReactUtils
 } from '@c332030/common-react-ts'
 
+import {
+  EtcdValue
+} from '../../entity'
+
 /**
  * Prop 类型
  */
 interface PropTypes {
   value: string
+
+  needFormatJson: boolean
 
   onChange: Function
 }
@@ -102,11 +104,9 @@ class MoponEtcdValueView extends React.Component <PropTypes, StateTypes> {
 
     const isJson = value.charAt(0) === '{';
 
-    //this.state.formatJson
-
     return (
       <>
-        { (isJson)
+        { ( this.props.needFormatJson && isJson)
           ? this.getJsonValuePage.call(this, JSON.parse(value))
           : this.getValuePage.call(this, value)
         }

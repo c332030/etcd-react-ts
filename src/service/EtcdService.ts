@@ -1,7 +1,7 @@
 
 import {
   get
-  // ,log
+  ,log
 } from '@c332030/common-utils-ts'
 
 import {
@@ -114,7 +114,7 @@ export class EtcdService {
     }
 
     if(dir) {
-      key += '?dir=true';
+      key = EtcdUtils.operateDir(key);
     }
 
     return axiosDelete(url + key).then(res => {
@@ -136,15 +136,18 @@ export class EtcdService {
    * @param url
    * @param value
    */
-  private static put(url: string, value: string): Promise<any> {
+  private static put(url: string, value?: string): Promise<any> {
 
     return axiosPut(url , `value=${value}`).then(res => {
 
       const action: string | undefined = get(res, 'data.action');
       const resValue: string | undefined = get(res, 'data.node.value');
 
-      if(resValue !== value
-        || (  'set' !== action && 'put' !== action )
+      if(value
+        && (
+          resValue !== value
+          || (  'set' !== action && 'put' !== action )
+        )
       ) {
         return Promise.reject('操作失败');
       }
@@ -158,8 +161,9 @@ export class EtcdService {
    * @param node
    * @param newKey
    * @param value
+   * @param operateDir
    */
-  public static add(node?: EtcdNode, newKey?: string, value?: string) {
+  public static add(node?: EtcdNode, newKey?: string, value?: string, operateDir: boolean = false) {
 
     if(!node) {
       return Promise.reject('节点不存在');
@@ -176,14 +180,14 @@ export class EtcdService {
       return Promise.reject('新 key 为空');
     }
 
-    if(!value) {
-      return Promise.reject('值为空');
-    }
-
     if(EtcdUtils.isRoot(node)) {
       key += newKey;
     } else {
       key += '/' + newKey;
+    }
+
+    if(operateDir) {
+      key = EtcdUtils.operateDir(key);
     }
 
     return EtcdService.put(url + key, value);
@@ -208,10 +212,6 @@ export class EtcdService {
 
     if(!key) {
       return Promise.reject('key 为空');
-    }
-
-    if(!value) {
-      return Promise.reject('值为空');
     }
 
     return EtcdService.put(url + key, value);
