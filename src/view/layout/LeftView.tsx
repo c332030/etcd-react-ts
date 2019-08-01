@@ -8,25 +8,25 @@
  */
 
 import React from 'react';
-import {Input, Message, Tree} from "element-react";
-
-import AxiosUtils from '../../util/AxiosUtils'
+import {Input, Notification, Tree} from "element-react";
 
 import {
-  EtcdNode
-} from "../../entity";
-
-import {
-  Tools
-} from '@c332030/common-utils-ts'
+  AxiosResponse
+} from 'axios';
 
 import {
   TreeOptions
 } from '@c332030/common-element-ui-ts'
 
 import {
+  EtcdNode
+} from "../../entity";
+
+import {
   CenterView
 } from "./CenterView";
+
+import {EtcdService} from "../../service";
 
 /**
  * Prop 类型
@@ -73,33 +73,27 @@ export class LeftView extends React.Component<PropTypes, {}>{
       url: url
     });
 
-    AxiosUtils.post(url).then(e => {
+    this.props.loading(true);
 
-      const nodes: EtcdNode[] | undefined = Tools.get(e, 'data.node.nodes');
-      if(!nodes) {
+    EtcdService.list(url).then((nodes: Array<EtcdNode>) => {
 
-        this.props.loading(false);
-        Message.error('无节点');
-        return;
-      }
-
-      nodes.forEach(nodeE => {
-        nodeE.label = nodeE.key ? nodeE.key.substr(1) : 'No key'
-      });
+      this.props.loading(false);
 
       this.setState({
         node: {
           nodes: nodes
         }
       });
+    }).catch((err: AxiosResponse | string) => {
 
       this.props.loading(false);
-      Message.success('查询成功');
-    }).catch(e => {
 
-      console.log(e);
-      this.props.loading(false);
-      Message.error('查询失败');
+      if(typeof err !== 'string') {
+        Notification.error('查询失败');
+        return;
+      }
+
+      Notification.error(err);
     });
   }
 
@@ -123,29 +117,10 @@ export class LeftView extends React.Component<PropTypes, {}>{
       return;
     }
 
-    AxiosUtils.post(this.state.url + node.key).then(e => {
-
-      const childNodes: EtcdNode[] | undefined = Tools.get(e, 'data.node.nodes');
-      if(!childNodes) {
-
-        resolve([]);
-        return
-      }
-
-      // 删除树已有的前缀
-      childNodes.forEach(nodeE => {
-        const keyE = nodeE.key;
-        if(!keyE) {
-          return;
-        }
-
-        // 处理 key 生成 label，避免 key 太长，使用 label 显示
-        nodeE.label = keyE.substr(node.key.length + 1);
-      });
-
-      resolve(childNodes);
-    }).catch(e => {
-      console.log(e);
+    EtcdService.listNode(this.state.url, node).then(nodes => {
+      resolve(nodes);
+    }).catch( () => {
+      resolve([]);
     });
   }
 
@@ -157,6 +132,7 @@ export class LeftView extends React.Component<PropTypes, {}>{
       return
     }
 
+    node.url = this.state.url;
     centerView.showNode(node);
   }
 

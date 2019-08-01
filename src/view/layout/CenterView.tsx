@@ -9,9 +9,15 @@
 import React from "react";
 
 import {
+  Button
+  ,Form
+  , Input
+  , Notification
+} from "element-react";
+
+import {
   EtcdNode
 } from '../../entity'
-import {Button, Card, Form, Input} from "element-react";
 
 import MoponEtcdValueView from "../mopon/MoponEtcdValueView";
 
@@ -28,6 +34,11 @@ import {
   ReactUtils
 } from '@c332030/common-react-ts'
 
+import {
+  EtcdUtils
+  , handleError,
+} from "../../util";
+import {EtcdService} from "../../service";
 
 /**
  * Prop 类型
@@ -35,6 +46,8 @@ import {
 interface PropTypes {
   loading: Function
   setThis: Function
+
+  refresh: Function
 }
 
 /**
@@ -49,7 +62,7 @@ interface StateTypes {
 
 export class CenterView extends React.Component<PropTypes, StateTypes> {
 
-  state:StateTypes = {
+  state: StateTypes = {
     node: {}
 
     ,key: ''
@@ -64,35 +77,21 @@ export class CenterView extends React.Component<PropTypes, StateTypes> {
     this.showNode.bind(this);
   }
 
-  showNode(node: EtcdNode) {
+  showNode(node?: EtcdNode) {
 
     if(!node) {
+      this.setState({
+        node: {}
+      });
       return;
     }
 
     this.setState({
       node: node
 
-      ,key: node.dir ? '' : StringUtils.dealNull(node.key)
+      ,key: EtcdUtils.isDir(node) ? '' : StringUtils.dealNull(node.key)
       ,value: StringUtils.dealNull(node.value)
     });
-  }
-
-  private onAdd(){
-    console.log('onAdd');
-    console.log(`add key= ${ this.state.key }`);
-    console.log(`add value= ${ this.state.value }`);
-  }
-
-  private onUpdate(){
-    console.log('onUpdate');
-    console.log(`update key= ${ this.state.node.key }`);
-    console.log(`update value= ${ this.state.value }`);
-  }
-
-  private onDelete(){
-    console.log('onUpdate');
-    console.log(`delete key= ${ this.state.node.key }`);
   }
 
   render(): React.ReactElement<any, string | React.JSXElementConstructor<any>> | string | number | {} | React.ReactNodeArray | React.ReactPortal | boolean | null | undefined {
@@ -107,25 +106,69 @@ export class CenterView extends React.Component<PropTypes, StateTypes> {
       );
     }
 
+    const isDir = EtcdUtils.isDir(node);
+
     return (
       <>
         <div style={{ paddingBottom: '1rem' }}>
-          <span>节点类型：{ node.dir ? '目录：' + node.key : '数据' }</span>
+          <span>节点类型：{ isDir ? '目录：' + node.key : '数据' }</span>
         </div>
         <Form labelWidth={ '60' } labelPosition={ 'right' }>
+
           <Form.Item label={ Tools.get(KeyValueEnum, 'key') }>
-            <Input value={ key } readOnly={ !node.dir } onChange={ e => {
+            <Input value={ key } readOnly={ !isDir } onChange={ e => {
               this.setState({ key: ReactUtils.getString(e) });
             }} />
           </Form.Item>
+
           <MoponEtcdValueView value={ value }
             onChange={ (value: string) => {
               this.setState({value: value})
             }}
           />
-          { node.dir && <Button onClick={ this.onAdd.bind(this) } >添加</Button> }
-          <Button onClick={ this.onUpdate.bind(this) }>更新</Button>
-          <Button onClick={ this.onDelete.bind(this) }>删除</Button>
+
+          {
+            isDir &&
+            <Button onClick={ () => {
+
+              EtcdService.add(
+                this.state.node
+                ,this.state.key
+                ,this.state.value
+              ).then(() => {
+
+                Notification.success('新增成功');
+
+                this.props.refresh();
+              }).catch(handleError);
+            }} >添加</Button>
+          }
+
+          <Button onClick={ () => {
+
+            EtcdService.update(
+              this.state.node
+              ,this.state.value
+            ).then(() => {
+
+              Notification.success('更新成功');
+
+              this.props.refresh();
+            }).catch(handleError);
+          }}>更新</Button>
+
+          <Button onClick={ () => {
+
+            EtcdService.delete(
+              this.state.node
+            ).then(() => {
+
+              Notification.success(`删除成功：${this.state.node.key}`);
+
+              this.props.refresh();
+              this.showNode();
+            }).catch(handleError);
+          }}>删除</Button>
         </Form>
       </>
     );

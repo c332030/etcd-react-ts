@@ -9,10 +9,15 @@
 
 
 import React from "react";
-import {Button, Card, Input, Select} from "element-react";
+import {Button, Input, Select} from "element-react";
+
+import {
+  log
+} from '@c332030/common-utils-ts'
 
 
 interface PropTypes {
+  setThis: Function
   loading: Function
 
   listKey: Function
@@ -24,8 +29,8 @@ export class TopView extends React.Component<PropTypes, {}> {
     prepend: 'http://'
     ,append: '/v2/keys'
 
-    // ,url: 'localhost'
-    ,url: 'work.server.c332030.com'
+    ,url: 'localhost'
+    // ,url: 'work.server.c332030.com'
     ,port: '2379'
 
     ,schemes: [
@@ -34,17 +39,15 @@ export class TopView extends React.Component<PropTypes, {}> {
     ]
   };
 
-  componentDidMount(): void {
-    if(this.state.prepend
-      && this.state.url
-      && this.state.port
-      && this.state.append
-    ) {
-      this.listKey.call(this);
-    }
+  constructor(props: PropTypes) {
+    super(props);
+
+    this.props.setThis(this);
   }
 
-  listKey() {
+  public listKey() {
+
+    log('listKey');
 
     this.props.loading(true);
 

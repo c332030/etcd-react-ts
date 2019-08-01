@@ -5,11 +5,12 @@
  * @date 2019-7-12 18:09
  */
 
-import {
-  EtcdValue
-} from "./EtcdValue";
-
 export interface EtcdNode {
+
+  /**
+   * 链接
+   */
+  url?: string
 
   /**
    * 名字

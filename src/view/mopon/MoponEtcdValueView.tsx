@@ -4,7 +4,7 @@ import {
   EtcdValue
 } from '../../entity'
 
-import {Form, Input} from "element-react";
+import {Button, Form, Input} from "element-react";
 
 import {
   Tools
@@ -30,9 +30,7 @@ interface PropTypes {
 /**
  * State 类型
  */
-interface StateTypes {
-  formatJson: boolean
-}
+interface StateTypes {}
 
 /**
  * <p>
@@ -47,9 +45,7 @@ class MoponEtcdValueView extends React.Component <PropTypes, StateTypes> {
   constructor(props: PropTypes) {
     super(props);
 
-    this.state = {
-      formatJson: true
-    }
+    this.state = {}
   }
 
   onChange(value: string) {
@@ -86,7 +82,7 @@ class MoponEtcdValueView extends React.Component <PropTypes, StateTypes> {
       {
         Object.keys(jsonValue).map((key: string) => {
           return (
-            <Form.Item label={ Tools.get(KeyValueEnum, key) }>
+            <Form.Item label={ Tools.get(KeyValueEnum, key) } key={ 'JsonValue.form.item.' + key }>
               <Input value={ jsonValue[key] } onChange={ (e) => {
 
                 jsonValue[key] = ReactUtils.getString(e);
@@ -104,13 +100,15 @@ class MoponEtcdValueView extends React.Component <PropTypes, StateTypes> {
 
     const { value } = this.props;
 
-    const isJson = value.charAt(0) !== '{';
+    const isJson = value.charAt(0) === '{';
+
+    //this.state.formatJson
 
     return (
       <>
-        { (!this.state.formatJson || isJson)
-          ? this.getValuePage.call(this, value)
-          : this.getJsonValuePage.call(this, JSON.parse(value))
+        { (isJson)
+          ? this.getJsonValuePage.call(this, JSON.parse(value))
+          : this.getValuePage.call(this, value)
         }
       </>
     );

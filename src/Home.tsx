@@ -1,8 +1,7 @@
 import React from 'react';
 
 import {
-  Card,
-  Layout, Loading
+  Loading
 } from 'element-react'
 import 'element-theme-default';
 
@@ -11,6 +10,10 @@ import {
   ,LeftView
   ,CenterView
 } from './view/layout';
+
+// import {
+//   log
+// } from '@c332030/common-utils-ts'
 
 /**
  * Props 类型定义
@@ -47,6 +50,12 @@ class Home extends React.Component<PropsTypes, StateTypes> {
     this.setState({
       loading: loading
     });
+  }
+
+  setTop(_this: TopView){
+    /* eslint-disable */
+    this.state.view.top = _this;
+    /* eslint-enable */
   }
 
   setLeft(_this: LeftView){
@@ -88,8 +97,9 @@ class Home extends React.Component<PropsTypes, StateTypes> {
             }}
           >
             <TopView
-              listKey={ this.listKey.bind(this) }
+              setThis={this.setTop.bind(this)}
               loading={ this.loading.bind(this) }
+              listKey={ this.listKey.bind(this) }
             />
           </div>
           <div
@@ -115,7 +125,13 @@ class Home extends React.Component<PropsTypes, StateTypes> {
               // ,border: '1px solid red'
             }}
           >
-            <CenterView setThis={ this.setCenter.bind(this) } loading={ this.loading.bind(this) } />
+            <CenterView
+              setThis={ this.setCenter.bind(this) }
+              loading={ this.loading.bind(this) }
+              refresh={ () => {
+                this.state.view.top && this.state.view.top.listKey();
+              } }
+            />
           </div>
         </div>
       </>
