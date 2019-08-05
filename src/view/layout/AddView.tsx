@@ -146,7 +146,7 @@ class AddView extends React.Component <PropTypes, StateTypes> {
                 return;
               }
 
-              if(isDir && !value) {
+              if(!isDir && !value) {
                 Notification.error(`请输入${Tools.get(KeyValueEnum, 'value', '值')}`);
                 return;
               }

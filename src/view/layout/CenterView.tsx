@@ -18,6 +18,7 @@ import {
 
 import {
   log
+  ,isArrEmpty
 } from '@c332030/common-utils-ts'
 
 import {
@@ -27,6 +28,7 @@ import {
 import ValueView from "./ValueView";
 
 import {
+  EtcdUtils,
   handleError,
 } from "../../util";
 import {EtcdService} from "../../service";
@@ -70,7 +72,6 @@ interface StateTypes {
 /**
  * 表格配置
  */
-
 export class CenterView extends React.Component<PropTypes, StateTypes> {
 
   state: StateTypes = {
@@ -210,7 +211,7 @@ export class CenterView extends React.Component<PropTypes, StateTypes> {
           onAdd={(key: string, value: string, isDir: boolean) => {
             EtcdService.add(this.state.node, key, value, isDir).then(() => {
 
-              Notification.success(`新增${isDir ? '目录' : '值'}成功`);
+              Notification.success(`新增${isDir ? '目录' : '值'}成功：${key}`);
               this.reload.call(this);
             }).catch(handleError);
           }}
@@ -227,6 +228,19 @@ export class CenterView extends React.Component<PropTypes, StateTypes> {
                 <Button onClick={() => {
                   this.add()
                 }}>添加目录</Button>
+                {
+                  node && !EtcdUtils.isRoot(node) && isArrEmpty(node.nodes) &&
+                  <Button
+                    type="danger"
+                    onClick={() => {
+                      EtcdService.delete(node).then(() => {
+
+                        Notification.success(`删除目录成功：${node.key}`);
+                        this.reload.call(this);
+                      }).catch(handleError);
+                    }}
+                  >删除目录</Button>
+                }
                 <Button onClick={() => {
                   this.add(false)
                 }}>添加值</Button>
