@@ -2,15 +2,13 @@
 # Nginx 配置
 
 ```
-
 #user  nobody;
 worker_processes  1;
 
-#error_log  logs/error.log;
-#error_log  logs/error.log  notice;
-#error_log  logs/error.log  info;
+access_log  logs/nginx.access;
+error_log logs/nginx.error;
 
-#pid        logs/nginx.pid;
+pid        logs/nginx.pid;
 
 events {
     worker_connections  1024;
@@ -21,8 +19,8 @@ http {
   include       mime.types;
   default_type  application/octet-stream;
 
-  access_log  logs/access.log;
-  error_log logs/error.log;
+  access_log  logs/http.access;
+  error_log logs/http.error;
 
   sendfile        on;
 

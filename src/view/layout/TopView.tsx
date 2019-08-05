@@ -30,7 +30,7 @@ export class TopView extends React.Component<PropTypes, {}> {
     ,append: '/v2/keys'
 
     ,url: 'localhost'
-    // ,url: 'work.server.c332030.com'
+    // ,url: 'config.work.c332030.com'
     ,port: '2379'
 
     ,schemes: [

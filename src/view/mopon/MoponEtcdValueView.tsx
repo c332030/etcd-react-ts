@@ -4,6 +4,8 @@ import {Form, Input} from "element-react";
 
 import {
   Tools
+
+  ,log
 } from '@c332030/common-utils-ts'
 
 import {
@@ -102,12 +104,20 @@ class MoponEtcdValueView extends React.Component <PropTypes, StateTypes> {
 
     const { value } = this.props;
 
-    const isJson = value.charAt(0) === '{';
+    let jsonData;
+
+    try {
+      if(value) {
+        jsonData = JSON.parse(value);
+      }
+    } catch (e) {}
+
+    // log(jsonData);
 
     return (
       <>
-        { ( this.props.needFormatJson && isJson)
-          ? this.getJsonValuePage.call(this, JSON.parse(value))
+        { ( this.props.needFormatJson && jsonData)
+          ? this.getJsonValuePage.call(this, jsonData)
           : this.getValuePage.call(this, value)
         }
       </>

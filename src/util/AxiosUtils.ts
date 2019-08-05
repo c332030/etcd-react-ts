@@ -69,10 +69,10 @@ class AxiosUtils {
      */
     this.axiosInstance.interceptors.request.use((config: AxiosRequestConfig) => {
 
-      // console.log(config);
+      // log(config);
 
       const url = config.url;
-      const configUrl = get<string>(this.axiosConfig, 'proxy.url');
+      const configUrl = get(this.axiosConfig, 'proxy.url', '');
 
       if(!url) {
         throw new Error('链接为空');

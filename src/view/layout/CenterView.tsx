@@ -194,7 +194,7 @@ export class CenterView extends React.Component<PropTypes, StateTypes> {
                   ,this.state.operateDir
                 ).then(() => {
 
-                  Notification.success('新增成功');
+                  Notification.success(`新增${this.state.operateDir ? '目录' : '值' }成功`);
 
                   this.props.refresh();
                 }).catch(handleError);
@@ -228,7 +228,7 @@ export class CenterView extends React.Component<PropTypes, StateTypes> {
                   this.state.node
                 ).then(() => {
 
-                  Notification.success(`删除成功：${this.state.node.key}`);
+                  Notification.success(`删除${this.state.node.dir ? '目录' : '值' }成功：${this.state.node.key}`);
 
                   this.props.refresh();
                   this.showNode();

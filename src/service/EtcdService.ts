@@ -1,7 +1,7 @@
 
 import {
   get
-  ,log
+  ,getNotNull
 } from '@c332030/common-utils-ts'
 
 import {
@@ -36,10 +36,7 @@ export class EtcdService {
 
     return axiosGet(EtcdUtils.getSortUrl(url)).then(e => {
 
-      const nodes: EtcdNode[] | undefined = get(e, 'data.node.nodes');
-      if(!nodes) {
-        return Promise.reject('无节点');
-      }
+      const nodes: EtcdNode[] = getNotNull(e, 'data.node.nodes', []);
 
       nodes.forEach(node => {
         node.label = node.key ? node.key.substr(1) : 'No key'
@@ -73,10 +70,7 @@ export class EtcdService {
 
     return axiosGet(EtcdUtils.getSortUrl(url + key)).then(e => {
 
-      const childNodes: EtcdNode[] | undefined = get(e, 'data.node.nodes');
-      if(!childNodes) {
-        return Promise.resolve([]);
-      }
+      const childNodes: EtcdNode[] = getNotNull(e, 'data.node.nodes', []);
 
       // 删除树已有的前缀
       childNodes.forEach(nodeE => {
@@ -119,7 +113,7 @@ export class EtcdService {
 
     return axiosDelete(url + key).then(res => {
 
-      const action: string | undefined = get(res, 'data.action');
+      const action: string = getNotNull(res, 'data.action', '');
 
       // log(`action=${action}`);
 
@@ -138,15 +132,15 @@ export class EtcdService {
    */
   private static put(url: string, value?: string): Promise<any> {
 
-    return axiosPut(url , `value=${value}`).then(res => {
+    return axiosPut(url , `value=${encodeURIComponent(value as string)}`).then(res => {
 
-      const action: string | undefined = get(res, 'data.action');
-      const resValue: string | undefined = get(res, 'data.node.value');
+      const action: string = getNotNull(res, 'data.action', '');
+      const resValue: string = getNotNull(res, 'data.node.value', '');
 
       if(value
         && (
           resValue !== value
-          || (  'set' !== action && 'put' !== action )
+          || 'set' !== action
         )
       ) {
         return Promise.reject('操作失败');
