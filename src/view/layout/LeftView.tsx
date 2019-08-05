@@ -27,6 +27,7 @@ import {
 } from "./CenterView";
 
 import {EtcdService} from "../../service";
+import {EtcdUtils} from "../../util";
 
 /**
  * Prop 类型
@@ -38,7 +39,13 @@ interface PropTypes {
   center?: CenterView
 }
 
-export class LeftView extends React.Component<PropTypes, {}>{
+interface StateTypes {
+  url: string
+
+  node: EtcdNode
+}
+
+export class LeftView extends React.Component<PropTypes, StateTypes>{
 
   tree: Tree | null = null;
 
@@ -47,7 +54,7 @@ export class LeftView extends React.Component<PropTypes, {}>{
     children: 'nodes'
   };
 
-  state = {
+  state: StateTypes = {
     url: ''
     ,node: {
       nodes: []
@@ -81,7 +88,7 @@ export class LeftView extends React.Component<PropTypes, {}>{
 
       this.setState({
         node: {
-          nodes: nodes
+          dirNodes: nodes
         }
       });
     }).catch((err: AxiosResponse | string) => {
@@ -104,21 +111,31 @@ export class LeftView extends React.Component<PropTypes, {}>{
    */
   public loadNode(data: any, resolve: Function) {
 
-    const node = data.data;
+    const node: EtcdNode = data.data;
 
-    if(!node || node.id === 0) {
-      resolve([]);
+    resolve([]);
+
+    if(!node) {
       return;
     }
 
-    if(!node.dir) {
-
-      resolve([]);
-      return;
+    if(EtcdUtils.isRoot(node)) {
+      node.dirNodes = [];
     }
 
     EtcdService.listNode(this.state.url, node).then(nodes => {
-      resolve(nodes);
+
+      const arr: Array<Array<EtcdNode>> = EtcdUtils.filterDirAndDataNodes(nodes);
+      if(!EtcdUtils.isRoot(node)) {
+
+        node.nodes = nodes;
+        node.dirNodes = arr[0];
+        resolve(node.dirNodes);
+      }
+
+      node.dataNodes = arr[1];
+
+      this.showNode(node);
     }).catch( () => {
       resolve([]);
     });
@@ -133,34 +150,37 @@ export class LeftView extends React.Component<PropTypes, {}>{
     }
 
     node.url = this.state.url;
-    centerView.showNode(node);
+    centerView.show(node);
   }
 
   render(): React.ReactElement<any, string | React.JSXElementConstructor<any>> | string | number | {} | React.ReactNodeArray | React.ReactPortal | boolean | null | undefined {
 
     return (
       <>
-        <Input placeholder="输入关键字进行过滤"
-          onChange={ text => this.tree && this.tree.filter(text) }
-        />
-        <Tree
-          ref={e => this.tree = e}
-          className="filter-tree"
-          data={ this.state.node.nodes }
-          options={ this.options }
-          nodeKey="key"
-          defaultExpandAll={false}
-          highlightCurrent={ true }
-          filterNodeMethod={(value, data) => {
-            if(!value) return true;
-            return data.key.indexOf(value) !== -1;
-          }}
+        <div style={{
+        }}>
+          <Input placeholder="输入关键字进行过滤"
+            onChange={ text => this.tree && this.tree.filter(text) }
+          />
+          <Tree
+            ref={e => this.tree = e}
+            className="filter-tree"
+            data={ this.state.node.dirNodes }
+            options={ this.options }
+            nodeKey="key"
+            defaultExpandAll={false}
+            highlightCurrent={ true }
+            filterNodeMethod={(value, data) => {
+              if(!value) return true;
+              return data.key.indexOf(value) !== -1;
+            }}
 
-          lazy={ true }
-          load={ this.loadNode.bind(this) }
+            lazy={ true }
+            load={ this.loadNode.bind(this) }
 
-          onNodeClicked={ this.showNode.bind(this) }
-        />
+            onNodeClicked={ this.showNode.bind(this) }
+          />
+        </div>
       </>
     );
   }

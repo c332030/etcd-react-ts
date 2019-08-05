@@ -9,38 +9,29 @@
 import React from "react";
 
 import {
-  Button
+  Button, Card
   , Form
-  , Input
-  , Notification, Switch
+  , Notification
+  , Switch
+  , Table
 } from "element-react";
+
+import {
+  log
+} from '@c332030/common-utils-ts'
 
 import {
   EtcdNode
 } from '../../entity'
 
-import MoponEtcdValueView from "../mopon/MoponEtcdValueView";
+import ValueView from "./ValueView";
 
 import {
-  Tools
-  ,StringUtils
-
-  ,log
-} from '@c332030/common-utils-ts'
-
-import {
-  KeyValueEnum
-} from '@c332030/common-constant-ts'
-
-import {
-  ReactUtils
-} from '@c332030/common-react-ts'
-
-import {
-  EtcdUtils
-  , handleError,
+  handleError,
 } from "../../util";
 import {EtcdService} from "../../service";
+
+import AddView, {IAddView} from "./AddView";
 
 /**
  * Prop 类型
@@ -49,7 +40,8 @@ interface PropTypes {
   loading: Function
   setThis: Function
 
-  refresh: Function
+  reload: Function
+  reloadNode: Function
 }
 
 /**
@@ -60,10 +52,7 @@ interface StateTypes {
   /**
    * 节点
    */
-  node: EtcdNode
-
-  key: string
-  value: string
+  node?: EtcdNode
 
   /**
    * 是否需要转换 JSON
@@ -71,21 +60,96 @@ interface StateTypes {
   needFormatJson: boolean
 
   /**
-   * 是否操作目录
+   * 视图
    */
-  operateDir: boolean
+  view: {
+    addView?: IAddView
+  }
 }
+
+/**
+ * 表格配置
+ */
 
 export class CenterView extends React.Component<PropTypes, StateTypes> {
 
   state: StateTypes = {
     node: {}
+    , needFormatJson: true
 
-    ,key: ''
-    ,value: ''
+    ,view: {}
+  };
 
-    ,needFormatJson: true
-    ,operateDir: false
+  tableConfig: any = {
+    columns: [
+      {
+        type: 'expand'
+        , expandPannel: (node: EtcdNode) => {
+
+          const form = {
+            value: node.value
+          };
+
+          return (
+            <>
+              <Form>
+                <ValueView
+                  value={form.value}
+                  needFormatJson={this.state.needFormatJson}
+                  onChange={(value: string) => {
+                    form.value = value;
+                  }}
+                />
+              </Form>
+              <Button onClick={() => {
+                node.url = this.state.node && this.state.node.url;
+                EtcdService.update(node, form.value).then(() => {
+
+                  Notification.success('更新成功');
+                  this.reload.call(this);
+                }).catch(handleError);
+              }}>更新</Button>
+            </>
+          )
+        }
+      }
+      // , {
+      //   type: 'index'
+      //   , width: '500'
+      // }
+      , {
+        label: '键'
+        , prop: 'label'
+        , width: '300'
+      }
+      , {
+        label: '值'
+        , prop: 'value'
+        , minWidth: '400'
+      }
+      , {
+        label: '操作'
+        , value: 'key'
+        , render: (node: EtcdNode) => {
+
+          // log(node);
+
+          return (
+            <>
+              <Button type="danger" size="small" onClick={() => {
+                node.url = this.state.node && this.state.node.url;
+
+                EtcdService.delete(node).then(() => {
+
+                  Notification.success(`删除成功：${node.key}`);
+                  this.reload.call(this);
+                }).catch(handleError);
+              }}>删除</Button>
+            </>
+          )
+        }
+      }
+    ]
   };
 
   constructor(props: PropTypes) {
@@ -93,150 +157,107 @@ export class CenterView extends React.Component<PropTypes, StateTypes> {
 
     this.props.setThis(this);
 
-    this.showNode.bind(this);
+    this.show.bind(this);
   }
 
-  showNode(node?: EtcdNode) {
-
-    if(!node) {
-      this.setState({
-        node: {}
-      });
-      return;
-    }
-
+  /**
+   * 显示节点
+   * @param node
+   */
+  show(node?: EtcdNode) {
     this.setState({
       node: node
-
-      ,key: EtcdUtils.isDir(node) ? '' : StringUtils.dealNull(node.key)
-      ,value: StringUtils.dealNull(node.value)
     });
+  }
+
+  setAddView(addView: IAddView) {
+    /* eslint-disable */
+    this.state.view.addView = addView;
+    /* eslint-enable */
+  }
+
+  reload() {
+    this.setState({
+      node: undefined
+    });
+    this.props.reload();
+  }
+
+  /**
+   * 添加目录或节点
+   * @param isDir
+   */
+  add(isDir: boolean = true) {
+    this.state.view.addView && this.state.view.addView.display(true, isDir);
   }
 
   render(): React.ReactElement<any, string | React.JSXElementConstructor<any>> | string | number | {} | React.ReactNodeArray | React.ReactPortal | boolean | null | undefined {
 
-    const { node, key, value } = this.state;
+    const {node} = this.state;
 
-    if(Object.keys(node).length === 0) {
+    if (!node || !node.key) {
       return (
-        <>
-          <span>请选择节点</span>
-        </>
+        <Card>
+          请选择节点
+        </Card>
       );
     }
 
-    const isDir = EtcdUtils.isDir(node);
-
     return (
       <>
-        <div style={{ paddingBottom: '1rem' }}>
-          <span>节点类型：{ isDir ? '目录：' + node.key : '数据' }</span>
-        </div>
-        <Form labelWidth={ '100' } labelPosition={ 'right' }>
+        <AddView
+          setThis={ this.setAddView.bind(this) }
+          onAdd={(key: string, value: string, isDir: boolean) => {
+            EtcdService.add(this.state.node, key, value, isDir).then(() => {
 
-          <div style={{
-            display: 'flex'
-          }}>
-            <Form.Item label={ '转换 JSON' }>
-              <Switch
-                value={ this.state.needFormatJson }
-                onColor="#13ce66"
-                offColor="#ff4949"
-                onChange={ value => {
-                  this.setState({
-                    needFormatJson: !!value
-                  })
-                } }
-              />
-            </Form.Item>
-            <Form.Item label={ '操作目录' }>
-              <Switch
-                value={ this.state.operateDir }
-                onColor="#13ce66"
-                offColor="#ff4949"
-                onChange={ value => {
-                  this.setState({
-                    operateDir: !!value
-                  })
-                } }
-              />
-            </Form.Item>
-          </div>
-
-          <Form.Item label={ Tools.get(KeyValueEnum, 'key') }>
-            <Input value={ key } readOnly={ !isDir } onChange={ e => {
-              this.setState({ key: ReactUtils.getString(e) });
-            }} />
-          </Form.Item>
-
+              Notification.success(`新增${isDir ? '目录' : '值'}成功`);
+              this.reload.call(this);
+            }).catch(handleError);
+          }}
+        />
+        <Card
+          header={
+            <>
+              <div>
+                <div style={{
+                  margin: '0 0 1.5rem 0'
+                }}>
+                  {node.key}
+                </div>
+                <Button onClick={() => {
+                  this.add()
+                }}>添加目录</Button>
+                <Button onClick={() => {
+                  this.add(false)
+                }}>添加值</Button>
+                <Switch
+                  value={this.state.needFormatJson}
+                  onColor={"#13ce66"}
+                  offColor={"#ff4949"}
+                  onText={'JSON'}
+                  offText={'字符串'}
+                  width={75}
+                  style={{
+                    margin: '0 1rem'
+                  }}
+                  onChange={value => {
+                    this.setState({
+                      needFormatJson: !!value
+                    })
+                  }}
+                />
+              </div>
+            </>
+          }
+        >
           {
-            !this.state.operateDir &&
-            <MoponEtcdValueView
-              value={ value }
-              needFormatJson={ this.state.needFormatJson }
-              onChange={ (value: string) => {
-                this.setState({value: value})
-              }}
+            node.dataNodes && node.dataNodes.length > 0 &&
+            <Table
+              columns={this.tableConfig.columns}
+              data={node.dataNodes}
             />
           }
-
-          <div style={{
-            marginLeft: '4rem'
-          }}>
-            {
-              isDir &&
-              <Button onClick={ () => {
-
-                EtcdService.add(
-                  this.state.node
-                  ,this.state.key
-                  ,this.state.value
-                  ,this.state.operateDir
-                ).then(() => {
-
-                  Notification.success(`新增${this.state.operateDir ? '目录' : '值' }成功`);
-
-                  this.props.refresh();
-                }).catch(handleError);
-              }} >添加{ this.state.operateDir ? '目录' : '值' }</Button>
-            }
-
-            {
-              !this.state.operateDir && !isDir &&
-              <Button onClick={ () => {
-
-                EtcdService.update(
-                  this.state.node
-                  ,this.state.value
-                ).then(() => {
-
-                  Notification.success('更新成功');
-
-                  this.props.refresh();
-                }).catch(handleError);
-              }}>更新</Button>
-            }
-
-            {
-              (
-                (!isDir && !this.state.operateDir)
-                || (isDir && this.state.operateDir && !EtcdUtils.isRoot(node))
-              ) &&
-              <Button onClick={ () => {
-
-                EtcdService.delete(
-                  this.state.node
-                ).then(() => {
-
-                  Notification.success(`删除${this.state.node.dir ? '目录' : '值' }成功：${this.state.node.key}`);
-
-                  this.props.refresh();
-                  this.showNode();
-                }).catch(handleError);
-              }}>删除{ isDir && '目录' }</Button>
-            }
-          </div>
-        </Form>
+        </Card>
       </>
     );
   }

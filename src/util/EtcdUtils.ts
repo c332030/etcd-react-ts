@@ -61,4 +61,40 @@ export class EtcdUtils {
   public static operateDir(key: string): string {
     return key + '?dir=true';
   }
+
+  /**
+   * 过滤目录节点和数据节点
+   * @param nodes
+   */
+  public static filterDirAndDataNodes(nodes: Array<EtcdNode>): Array<Array<EtcdNode>> {
+    const dirNodes: Array<EtcdNode> = [];
+    const dataNodes: Array<EtcdNode> = [];
+
+    nodes.forEach((node:EtcdNode) => {
+
+      if(EtcdUtils.isDir(node)) {
+        dirNodes.push(node);
+      } else {
+        dataNodes.push(node);
+      }
+    });
+
+    return [dirNodes, dataNodes];
+  }
+
+  /**
+   * 过滤数据节点，返回目录节点
+   * @param nodes
+   */
+  public static filterDirNodes(nodes: Array<EtcdNode>): Array<EtcdNode>{
+    return this.filterDirAndDataNodes(nodes)[0];
+  }
+
+  /**
+   * 过滤目录节点，返回数据节点
+   * @param nodes
+   */
+  public static filterDataNodes(nodes: Array<EtcdNode>): Array<EtcdNode>{
+    return this.filterDirAndDataNodes(nodes)[1];
+  }
 }

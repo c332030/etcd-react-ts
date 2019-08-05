@@ -1,7 +1,6 @@
 
 import {
   get
-  ,getNotNull
 } from '@c332030/common-utils-ts'
 
 import {
@@ -10,6 +9,7 @@ import {
   ,axiosDelete
   ,EtcdUtils
 } from "../util";
+
 import {EtcdNode} from "../entity";
 
 
@@ -36,19 +36,23 @@ export class EtcdService {
 
     return axiosGet(EtcdUtils.getSortUrl(url)).then(e => {
 
-      const nodes: EtcdNode[] = getNotNull(e, 'data.node.nodes', []);
+      let nodes: EtcdNode[] = get(e, 'data.node.nodes', []);
 
-      nodes.forEach(node => {
-        node.label = node.key ? node.key.substr(1) : 'No key'
-      });
+      if(nodes.length > 0) {
+        nodes = EtcdUtils.filterDirNodes(nodes);
+
+        nodes.forEach(node => {
+          node.label = node.key ? node.key.substr(1) : 'No key'
+        });
+      }
 
       const root: EtcdNode = {
         key: '/'
         ,label: '/'
+        ,dir: true
       };
 
       nodes.unshift(root);
-
       return Promise.resolve(nodes);
     }).catch(err => {
       return Promise.reject(err);
@@ -70,7 +74,7 @@ export class EtcdService {
 
     return axiosGet(EtcdUtils.getSortUrl(url + key)).then(e => {
 
-      const childNodes: EtcdNode[] = getNotNull(e, 'data.node.nodes', []);
+      const childNodes: EtcdNode[] = get(e, 'data.node.nodes', []);
 
       // 删除树已有的前缀
       childNodes.forEach(nodeE => {
@@ -79,8 +83,16 @@ export class EtcdService {
           return;
         }
 
+        let index;
+
+        if(EtcdUtils.isRoot(node)) {
+          index = 1;
+        } else {
+          index = key.length + 1;
+        }
+
         // 处理 key 生成 label，避免 key 太长，使用 label 显示
-        nodeE.label = keyE.substr(key.length + 1);
+        nodeE.label = keyE.substr(index);
       });
 
       return Promise.resolve(childNodes);
@@ -113,7 +125,7 @@ export class EtcdService {
 
     return axiosDelete(url + key).then(res => {
 
-      const action: string = getNotNull(res, 'data.action', '');
+      const action: string = get(res, 'data.action', '');
 
       // log(`action=${action}`);
 
@@ -134,8 +146,8 @@ export class EtcdService {
 
     return axiosPut(url , `value=${encodeURIComponent(value as string)}`).then(res => {
 
-      const action: string = getNotNull(res, 'data.action', '');
-      const resValue: string = getNotNull(res, 'data.node.value', '');
+      const action: string = get(res, 'data.action', '');
+      const resValue: string = get(res, 'data.node.value', '');
 
       if(value
         && (

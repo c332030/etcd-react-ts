@@ -4,6 +4,7 @@ import {Notification} from "element-react";
 import {
   log
   ,get
+  ,getNullable
 } from '@c332030/common-utils-ts'
 
 /**
@@ -36,28 +37,13 @@ export class ReactTsUtils {
     if(debug) {
       for(let key in error) {
         log(`key= ${key}`);
-        log(get(error, key));
+        log(getNullable(error, key));
       }
     }
 
-    let msg: string | undefined = get(error, 'data.message');
-    if(debug) {
-      log('response message');
-      log(msg);
-    }
-
-    if(!msg) {
-      msg = get(error, 'Notification');
-
-      if(debug) {
-        log('error Notification');
-        log(msg);
-      }
-    }
-
-    if(!msg) {
-      msg = '通讯发生异常';
-    }
+    const msg: string = get(error, 'data.message'
+      ,get(error, 'Notification', '通讯发生异常')
+    );
 
     Notification.error(msg);
   }

@@ -33,9 +33,19 @@ export interface EtcdNode {
   dir?: boolean
 
   /**
-   * 目录下的值
+   * 子节点
    */
   nodes?: EtcdNode[]
+
+  /**
+   * 子目录节点
+   */
+  dirNodes?: EtcdNode[]
+
+  /**
+   * 子数据节点
+   */
+  dataNodes?: EtcdNode[]
 
   /**
    * 创建时的索引

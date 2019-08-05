@@ -4,6 +4,7 @@ import {
   Card,
   Loading
 } from 'element-react'
+
 import 'element-theme-default';
 
 import {
@@ -11,6 +12,7 @@ import {
   , LeftView
   , CenterView
 } from './layout';
+import {EtcdNode} from "../entity";
 
 // import {
 //   log
@@ -117,12 +119,11 @@ class Home extends React.Component<PropsTypes, StateTypes> {
                 loading={this.loading.bind(this)}
               />
             </div>
-
             <div
               style={{
                 display: 'inline-block'
                 , verticalAlign: 'top'
-                , width: '40rem'
+                , width: '70%'
                 , padding: '20px'
                 // ,border: '1px solid red'
               }}
@@ -130,8 +131,11 @@ class Home extends React.Component<PropsTypes, StateTypes> {
               <CenterView
                 setThis={this.setCenter.bind(this)}
                 loading={this.loading.bind(this)}
-                refresh={() => {
-                  // this.state.view.top && this.state.view.top.listKey();
+                reload={() => {
+                  this.state.view.top && this.state.view.top.listKey();
+                }}
+                reloadNode={(node: EtcdNode) => {
+                  // this.state.view.left && this.state.view.left.showNode(node);
                 }}
               />
             </div>
