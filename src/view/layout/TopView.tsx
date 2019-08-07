@@ -70,7 +70,7 @@ export class TopView extends React.Component<PropTypes, {}> {
           value={ this.state.url }
           prepend={
             <Select value={ this.state.prepend }
-              style={ { width: '5.5rem' } }
+              style={{ width: '5.5rem' }}
               onChange={ e => this.setState({prepend: e}) }
             >
               {

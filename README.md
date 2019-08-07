@@ -87,6 +87,7 @@ http {
       add_header Access-Control-Allow-Origin *;
       add_header Access-Control-Allow-Methods *;
       add_header Access-Control-Allow-Headers *;
+      add_header Content-Type 'application/json; charset=utf-8';
 
       if ($request_method = 'OPTIONS') {
         return 204;

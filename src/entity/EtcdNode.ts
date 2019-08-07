@@ -8,16 +8,6 @@
 export interface EtcdNode {
 
   /**
-   * 链接
-   */
-  url?: string
-
-  /**
-   * 名字
-   */
-  label?: string
-
-  /**
    * 键
    */
   key?: string
@@ -36,16 +26,6 @@ export interface EtcdNode {
    * 子节点
    */
   nodes?: EtcdNode[]
-
-  /**
-   * 子目录节点
-   */
-  dirNodes?: EtcdNode[]
-
-  /**
-   * 子数据节点
-   */
-  dataNodes?: EtcdNode[]
 
   /**
    * 创建时的索引

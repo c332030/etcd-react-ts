@@ -1,6 +1,7 @@
 
 import {
   get
+  ,debug
 } from '@c332030/common-utils-ts'
 
 import {
@@ -11,6 +12,7 @@ import {
 } from "../util";
 
 import {EtcdNode} from "../entity";
+import {EtcdNodeBo} from "../entity/bo/EtcdNodeBo";
 
 
 /**
@@ -36,7 +38,7 @@ export class EtcdService {
 
     return axiosGet(EtcdUtils.getSortUrl(url)).then(e => {
 
-      let nodes: EtcdNode[] = get(e, 'data.node.nodes', []);
+      let nodes: EtcdNodeBo[] = get(e, 'data.node.nodes', []);
 
       if(nodes.length > 0) {
         nodes = EtcdUtils.filterDirNodes(nodes);
@@ -46,7 +48,7 @@ export class EtcdService {
         });
       }
 
-      const root: EtcdNode = {
+      const root: EtcdNodeBo = {
         key: '/'
         ,label: '/'
         ,dir: true
@@ -74,7 +76,7 @@ export class EtcdService {
 
     return axiosGet(EtcdUtils.getSortUrl(url + key)).then(e => {
 
-      const childNodes: EtcdNode[] = get(e, 'data.node.nodes', []);
+      const childNodes: EtcdNodeBo[] = get(e, 'data.node.nodes', []);
 
       // 删除树已有的前缀
       childNodes.forEach(nodeE => {
@@ -103,7 +105,7 @@ export class EtcdService {
    * 修改
    * @param node
    */
-  public static delete(node?: EtcdNode): Promise<any> {
+  public static delete(node?: EtcdNodeBo): Promise<any> {
 
     if(!node) {
       return Promise.reject('节点不存在');
@@ -149,11 +151,9 @@ export class EtcdService {
       const action: string = get(res, 'data.action', '');
       const resValue: string = get(res, 'data.node.value', '');
 
-      if(value
-        && (
-          resValue !== value
-          || 'set' !== action
-        )
+      if(
+        (value && resValue !== value)
+        || 'set' !== action
       ) {
         return Promise.reject('操作失败');
       }
@@ -169,7 +169,7 @@ export class EtcdService {
    * @param value
    * @param operateDir
    */
-  public static add(node?: EtcdNode, newKey?: string, value?: string, operateDir: boolean = false) {
+  public static add(node?: EtcdNodeBo, newKey?: string, value?: string, operateDir: boolean = false) {
 
     if(!node) {
       return Promise.reject('节点不存在');
@@ -204,7 +204,7 @@ export class EtcdService {
    * @param node
    * @param value
    */
-  public static update(node?: EtcdNode, value?: string) {
+  public static update(node?: EtcdNodeBo, value?: string) {
 
     if(!node) {
       return Promise.reject('节点不存在');

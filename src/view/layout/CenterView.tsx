@@ -17,7 +17,7 @@ import {
 } from "element-react";
 
 import {
-  log
+  debug
   ,isArrEmpty
 } from '@c332030/common-utils-ts'
 
@@ -25,7 +25,7 @@ import {
   EtcdNode
 } from '../../entity'
 
-import ValueView from "./ValueView";
+import ValueView from "./center/ValueView";
 
 import {
   EtcdUtils,
@@ -33,7 +33,9 @@ import {
 } from "../../util";
 import {EtcdService} from "../../service";
 
-import AddView, {IAddView} from "./AddView";
+import AddView, {IAddView} from "./center/AddView";
+import {EtcdNodeBo} from "../../entity/bo/EtcdNodeBo";
+import {UpdateView} from "./center/UpdateView";
 
 /**
  * Prop 类型
@@ -54,7 +56,7 @@ interface StateTypes {
   /**
    * 节点
    */
-  node?: EtcdNode
+  node?: EtcdNodeBo
 
   /**
    * 是否需要转换 JSON
@@ -85,31 +87,24 @@ export class CenterView extends React.Component<PropTypes, StateTypes> {
     columns: [
       {
         type: 'expand'
-        , expandPannel: (node: EtcdNode) => {
-
-          const form = {
-            value: node.value
-          };
+        , expandPannel: (node: EtcdNodeBo) => {
 
           return (
             <>
-              <Form>
-                <ValueView
-                  value={form.value}
-                  needFormatJson={this.state.needFormatJson}
-                  onChange={(value: string) => {
-                    form.value = value;
-                  }}
-                />
-              </Form>
-              <Button onClick={() => {
-                node.url = this.state.node && this.state.node.url;
-                EtcdService.update(node, form.value).then(() => {
+              <UpdateView
+                node={node}
+                needFormatJson={this.state.needFormatJson}
 
-                  Notification.success('更新成功');
-                  this.reload.call(this);
-                }).catch(handleError);
-              }}>更新</Button>
+                onUpdate={(value: string) => {
+
+                  node.url = this.state.node && this.state.node.url;
+                  EtcdService.update(node, value).then(() => {
+
+                    Notification.success(`更新成功：${node.label}`);
+                    this.reload.call(this);
+                  }).catch(handleError);
+                }}
+              />
             </>
           )
         }
@@ -131,7 +126,7 @@ export class CenterView extends React.Component<PropTypes, StateTypes> {
       , {
         label: '操作'
         , value: 'key'
-        , render: (node: EtcdNode) => {
+        , render: (node: EtcdNodeBo) => {
 
           // log(node);
 
@@ -142,7 +137,7 @@ export class CenterView extends React.Component<PropTypes, StateTypes> {
 
                 EtcdService.delete(node).then(() => {
 
-                  Notification.success(`删除成功：${node.key}`);
+                  Notification.success(`删除成功：${node.label}`);
                   this.reload.call(this);
                 }).catch(handleError);
               }}>删除</Button>
@@ -207,6 +202,7 @@ export class CenterView extends React.Component<PropTypes, StateTypes> {
     return (
       <>
         <AddView
+          isJson={this.state.needFormatJson}
           setThis={ this.setAddView.bind(this) }
           onAdd={(key: string, value: string, isDir: boolean) => {
             EtcdService.add(this.state.node, key, value, isDir).then(() => {
@@ -225,6 +221,7 @@ export class CenterView extends React.Component<PropTypes, StateTypes> {
                 }}>
                   {node.key}
                 </div>
+
                 <Button onClick={() => {
                   this.add()
                 }}>添加目录</Button>
@@ -235,15 +232,17 @@ export class CenterView extends React.Component<PropTypes, StateTypes> {
                     onClick={() => {
                       EtcdService.delete(node).then(() => {
 
-                        Notification.success(`删除目录成功：${node.key}`);
+                        Notification.success(`删除目录成功：${node.label}`);
                         this.reload.call(this);
                       }).catch(handleError);
                     }}
                   >删除目录</Button>
                 }
+
                 <Button onClick={() => {
                   this.add(false)
                 }}>添加值</Button>
+
                 <Switch
                   value={this.state.needFormatJson}
                   onColor={"#13ce66"}

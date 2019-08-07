@@ -28,6 +28,7 @@ import {
 
 import {EtcdService} from "../../service";
 import {EtcdUtils} from "../../util";
+import {EtcdNodeBo} from "../../entity/bo/EtcdNodeBo";
 
 /**
  * Prop 类型
@@ -42,7 +43,7 @@ interface PropTypes {
 interface StateTypes {
   url: string
 
-  node: EtcdNode
+  node: EtcdNodeBo
 }
 
 export class LeftView extends React.Component<PropTypes, StateTypes>{
@@ -111,7 +112,7 @@ export class LeftView extends React.Component<PropTypes, StateTypes>{
    */
   public loadNode(data: any, resolve: Function) {
 
-    const node: EtcdNode = data.data;
+    const node: EtcdNodeBo = data.data;
 
     resolve([]);
 
@@ -141,7 +142,7 @@ export class LeftView extends React.Component<PropTypes, StateTypes>{
     });
   }
 
-  showNode(node: EtcdNode) {
+  showNode(node: EtcdNodeBo) {
 
     const centerView = this.props.center;
 

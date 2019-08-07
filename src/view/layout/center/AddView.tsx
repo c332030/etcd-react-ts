@@ -5,11 +5,12 @@ import {
   , Dialog
   , Form
   , Input
-  , Notification
+  , Notification, Select, Switch
 } from "element-react";
 
 import {
   Tools
+  ,debug
 } from '@c332030/common-utils-ts'
 
 import {
@@ -19,6 +20,7 @@ import {
 import {
   ReactUtils
 } from '@c332030/common-react-ts'
+import ValueView from "./ValueView";
 
 
 
@@ -27,6 +29,9 @@ import {
  * Prop 类型
  */
 interface PropTypes {
+
+  isJson: boolean
+
   setThis: Function
   onAdd: Function
 }
@@ -47,6 +52,11 @@ interface StateTypes {
   isDir?: boolean
 
   /**
+   * 是否为 Json
+   */
+  isJson: boolean
+
+  /**
    * 键
    */
   key: string
@@ -55,6 +65,11 @@ interface StateTypes {
    * 值
    */
   value?: string
+
+  /**
+   * 更新值
+   */
+  updateValue?: Function
 }
 
 /**
@@ -74,18 +89,21 @@ export interface IAddView {
  */
 class AddView extends React.Component <PropTypes, StateTypes> {
 
-  state: StateTypes = {
-    visible: false
-
-    ,key: ''
-  };
-
   constructor(props: PropTypes){
     super(props);
 
     this.props.setThis({
       display: this.display.bind(this)
     });
+
+    this.state = {
+
+      visible: false
+
+      ,key: ''
+
+      ,isJson: false
+    }
   }
 
   display(visible: boolean, isDir?: boolean) {
@@ -97,21 +115,54 @@ class AddView extends React.Component <PropTypes, StateTypes> {
 
   render(): React.ReactElement<any, string | React.JSXElementConstructor<any>> | string | number | {} | React.ReactNodeArray | React.ReactPortal | boolean | null | undefined {
 
-//     const {} = this.state;
+    const {
+      visible
+      ,isDir
+
+      ,key
+      ,value
+    } = this.state;
 
     return (
       <>
         <Dialog
           title="新增"
           size={'tiny'}
-          visible={ this.state.visible }
+          visible={ visible }
           onCancel={ () => this.display.call(this, false) }
         >
           <Dialog.Body>
+            {
+              !this.state.isDir &&
+              <Switch
+                value={this.state.isJson}
+                onColor={"#13ce66"}
+                offColor={"#ff4949"}
+                onText={'JSON'}
+                offText={'字符串'}
+                width={75}
+                style={{
+                  margin: '0 1rem'
+                }}
+                onChange={isJson => {
+                  this.setState({
+
+                    isJson: !!isJson
+                  }, () => {
+
+                    if(value && value !== '{}') {
+                      return;
+                    }
+
+                    this.state.updateValue && this.state.updateValue(isJson ? '{}' : '');
+                  });
+                }}
+              />
+            }
             <Form >
-              <Form.Item label={ Tools.get(KeyValueEnum, 'key', '键') } labelWidth="50">
+              <Form.Item label={ Tools.get(KeyValueEnum, 'key', '键') }>
                 <Input
-                  value={this.state.key}
+                  value={key}
                   onChange={(value) => {
                     this.setState({
                       key: ReactUtils.getString(value)
@@ -120,17 +171,22 @@ class AddView extends React.Component <PropTypes, StateTypes> {
                 />
               </Form.Item>
               {
-                !this.state.isDir &&
-                <Form.Item label={Tools.get(KeyValueEnum, 'value', '值')} labelWidth="50">
-                  <Input
-                    value={this.state.value}
-                    onChange={(value) => {
-                      this.setState({
-                        value: ReactUtils.getString(value)
-                      })
-                    }}
-                  />
-                </Form.Item>
+                !isDir &&
+                <ValueView
+                  value={value}
+                  needFormatJson={this.props.isJson}
+
+                  setUpdate={(fun: Function) => {
+                    this.setState({
+                      updateValue: fun
+                    });
+                  }}
+                  onChange={(value: string) =>{
+                    this.setState({
+                      value: value
+                    });
+                  }}
+                />
               }
             </Form>
           </Dialog.Body>
