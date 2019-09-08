@@ -13,8 +13,16 @@ import {Button, Input, Select} from "element-react";
 
 import {
   log
+  ,debug
 } from '@c332030/common-utils-ts'
 
+import {
+  CookieUtils
+} from '@c332030/common-http-ts'
+
+const URL_LAST_NAME = 'url-last';
+
+const URL_HISTORY_NAME = 'url-history';
 
 interface PropTypes {
   setThis: Function
@@ -29,8 +37,8 @@ export class TopView extends React.Component<PropTypes, {}> {
     prepend: 'http://'
     ,append: '/v2/keys'
 
-    // ,url: 'localhost'
-    ,url: 'config.work.c332030.com'
+    ,url: 'localhost'
+    // ,url: 'config.work.c332030.com'
     ,port: '2379'
 
     ,schemes: [
@@ -43,6 +51,16 @@ export class TopView extends React.Component<PropTypes, {}> {
     super(props);
 
     this.props.setThis(this);
+
+    debug(CookieUtils.list());
+
+    const lastUrl = CookieUtils.get(URL_LAST_NAME);
+
+    debug(`lastUrl= ${lastUrl}`);
+
+    if(lastUrl) {
+      this.state.url = lastUrl;
+    }
   }
 
   public listKey() {
@@ -83,7 +101,7 @@ export class TopView extends React.Component<PropTypes, {}> {
           onChange={ (url) => {
             this.setState({
               url: url
-            })
+            });
           } }
         />
         <span> : </span>
@@ -104,7 +122,10 @@ export class TopView extends React.Component<PropTypes, {}> {
         />
         <span> </span>
         <Button type="primary" icon="search"
-          onClick={ this.listKey.bind(this) }
+          onClick={ () => {
+            this.listKey.call(this);
+            CookieUtils.set(URL_LAST_NAME, this.state.url);
+          }}
         >查询</Button>
       </>
     );
