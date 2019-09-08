@@ -28,11 +28,6 @@ http {
 
   gzip  on;
 
-  # 允许 LUA 读取请求报文体
-  lua_need_request_body on;
-
-  underscores_in_headers on;
-
   # 设置解析 DNS，避免代理访问失败
   resolver 119.29.29.29 ipv6=off;
 
@@ -72,7 +67,6 @@ http {
                        '"dm":$request_body,'
                        '"agent": "$http_user_agent" }';
 
-
   server {
     listen       404;
     server_name  localhost;
@@ -84,47 +78,14 @@ http {
     error_log  logs/404.error.log;
 
     location / {
-      add_header Access-Control-Allow-Origin *;
-      add_header Access-Control-Allow-Methods *;
-      add_header Access-Control-Allow-Headers *;
-      add_header Content-Type 'application/json; charset=utf-8';
+      add_header Access-Control-Allow-Origin * always;
+      add_header Access-Control-Allow-Methods * always;
+      add_header Access-Control-Allow-Headers * always;
+      add_header Content-Type 'application/json; charset=utf-8' always;
 
       if ($request_method = 'OPTIONS') {
         return 204;
       }
-
-      # 以 lua 的方式发报文的原因：
-      # 1、可以根据请求报文对代理的链接、数据进行修改；
-      # 2、后台返回 403 等错误码时，能够添加跨域头，直接使用 proxy_pass 无法操作返回报文头
-      rewrite_by_lua_block {
-
-        local res = ngx.location.capture(
-          '/internal-proxy'
-          ,{
-            body = ngx.req.get_body_data()
-          }
-        )
-
-        -- 遍历报文头
-        -- local headers = ngx.req.get_headers();
-        -- for k, v in pairs(headers) do
-        --     ngx.say(k.."= "..v)
-        -- end
-
-        -- 返回报文头
-        -- ngx.say(ngx.var.request_method)
-        -- ngx.say(ngx.var.http_proxyurl)
-
-        -- 返回报文体
-        -- ngx.say(ngx.req.get_body_data())
-
-        -- 返回通讯报文
-        ngx.say(res.body)
-      }
-    }
-
-    location /internal-proxy {
-      internal;
 
       proxy_method $request_method;
       proxy_pass $http_proxyurl;

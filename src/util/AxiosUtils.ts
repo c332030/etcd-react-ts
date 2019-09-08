@@ -24,7 +24,7 @@ import {
   AxiosConfig
 } from '@c332030/common-http-ts'
 
-const configJsonUrl = '/config.json';
+const configJsonUrl = 'config.json';
 
 /**
  * 配置信息
