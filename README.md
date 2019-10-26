@@ -1,9 +1,27 @@
 
-# Nginx 配置
+# Etcd Of React
 
-```
+ETCD v2 的 Web管理工具，不依赖后台
+
+只需要一个服务器（express or nginx）部署静态项目并代理转发请求，处理跨域
+
+## 使用步骤
+
+1、yarn && yarn build
+
+2、proxy.cmd / proxy.sh
+
+3、http://localhost:404
+
+## Express 代理
+
+执行 proxy.cmd or proxy.sh
+
+## Nginx 代理配置
+
+```text
 #user  nobody;
-worker_processes  1;
+worker_processes 1;
 
 access_log  logs/nginx.access;
 error_log logs/nginx.error;
@@ -31,28 +49,6 @@ http {
   # 设置解析 DNS，避免代理访问失败
   resolver 119.29.29.29 ipv6=off;
 
-  server {
-      listen       80;
-      server_name  localhost;
-
-      charset utf-8;
-
-      access_log  logs/80.access.log;
-      error_log  logs/80.error.log;
-
-      location / {
-        root   html;
-        index  index.html index.htm;
-      }
-
-      #error_page  404              /404.html;
-
-      error_page   500 502 503 504  /50x.html;
-      location = /50x.html {
-          root   html;
-      }
-  }
-
   # 日志打印
   log_format main escape=json '{ "time_local": "$time_local", '
                        '"remote_addr": "$remote_addr",'
@@ -76,8 +72,13 @@ http {
     # 应用自定义日志格式
     access_log  logs/404.access.log main;
     error_log  logs/404.error.log;
-
+  
     location / {
+      root   html;
+      index  index.html;
+    }
+
+    location /proxy {
       add_header Access-Control-Allow-Origin * always;
       add_header Access-Control-Allow-Methods * always;
       add_header Access-Control-Allow-Headers * always;
@@ -92,5 +93,4 @@ http {
     }
   }
 }
-
 ```

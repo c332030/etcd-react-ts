@@ -1,5 +1,5 @@
 {
   "proxy": {
-    "url": "http://localhost:404/"
+    "url": "http://localhost:404/proxy"
   }
 }
