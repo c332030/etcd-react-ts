@@ -7,8 +7,17 @@
  * @date 2019-7-16 15:33
  */
 
+import {
+  debug
+} from '@c332030/common-utils-ts'
+
 import React from 'react';
-import {Input, Notification, Tree} from "element-react";
+import {
+  Button
+  , Input, MessageBox
+  , Notification
+  , Tree
+} from "element-react";
 
 import {
   AxiosResponse
@@ -27,7 +36,7 @@ import {
 } from "./CenterView";
 
 import {EtcdService} from "../../service";
-import {EtcdUtils} from "../../util";
+import {EtcdUtils, handleError, ReactTsUtils} from "../../util";
 import {EtcdNodeBo} from "../../entity/bo/EtcdNodeBo";
 
 /**
@@ -154,6 +163,75 @@ export class LeftView extends React.Component<PropTypes, StateTypes>{
     centerView.show(node);
   }
 
+  append(store: any, data: EtcdNodeBo) {
+
+    MessageBox.prompt('请输入名称', '提示', {
+      inputPattern: /[a-zA-Z0-9]{1,15}/
+      , inputErrorMessage: '请输入以字母和数字组成的名称'
+    }).then((value: any) => {
+
+      this.props.loading(true);
+
+      const label = value.value;
+
+      return EtcdService.add(data, label, '', true).then(() => {
+
+        const key = `/${label}`;
+        const node: EtcdNodeBo = {
+          dir: true
+          , label: label
+          , key: key
+          , url: `${data.url}${key}`
+        };
+
+        store.append(node, data);
+
+        Notification.success(`新增目录成功：${label}`);
+      });
+    }).catch(handleError).finally(() => {
+      this.props.loading(false);
+    });
+  }
+
+  remove(store: any, node: EtcdNodeBo) {
+    debug('remove');
+    debug(store);
+    debug(node);
+
+    this.props.loading(true);
+    EtcdService.delete(node).then(() => {
+
+      store.remove(node);
+      Notification.success(`删除目录成功：${node.label}`);
+    }).catch(handleError).finally(() => {
+      this.props.loading(false);
+    });
+  }
+
+  renderContent(nodeModel: any, node: EtcdNodeBo, store: any) {
+
+    // debug('nodeModel');
+    // debug(nodeModel);
+    // debug('data');
+    // debug(node);
+    // debug('store');
+    // debug(store);
+
+    return (
+      <span>
+      <span>
+        <span>{node.label}</span>
+      </span>
+      <span style={{float: 'right', marginRight: '20px'}}>
+        <Button size="mini" onClick={ () => this.append(store, node) }>添加子目录</Button>
+        {
+          !EtcdUtils.isRoot(node) &&
+          <Button size="mini" onClick={ () => this.remove(store, node) }>删除</Button>
+        }
+      </span>
+    </span>);
+  }
+
   render(): React.ReactElement<any, string | React.JSXElementConstructor<any>> | string | number | {} | React.ReactNodeArray | React.ReactPortal | boolean | null | undefined {
 
     return (
@@ -180,6 +258,7 @@ export class LeftView extends React.Component<PropTypes, StateTypes>{
             load={ this.loadNode.bind(this) }
 
             onNodeClicked={ this.showNode.bind(this) }
+            renderContent={ this.renderContent.bind(this) }
           />
         </div>
       </>

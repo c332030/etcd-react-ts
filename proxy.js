@@ -7,7 +7,9 @@
  * @date 2019-10-24 16:42
  */
 
-// const debug = console.debug;
+const debug = console.debug;
+
+const port = 404;
 
 const request = require('request');
 const express = require('express');
@@ -67,4 +69,12 @@ app.all('/proxy', (req, res) => {
   });
 });
 
-app.listen(404);
+app.listen(404, () => {
+  debug(`Listening ${port} successful`)
+});
+
+const {
+  exec
+} = require("child_process");
+
+exec(`start http://localhost:${port}`);

@@ -25,7 +25,7 @@ import {
   EtcdNode
 } from '../../entity'
 
-import ValueView from "./center/ValueView";
+import ValueView from "./component/ValueView";
 
 import {
   EtcdUtils,
@@ -33,9 +33,9 @@ import {
 } from "../../util";
 import {EtcdService} from "../../service";
 
-import AddView, {IAddView} from "./center/AddView";
+import AddView, {IAddView} from "./component/AddView";
 import {EtcdNodeBo} from "../../entity/bo/EtcdNodeBo";
-import {UpdateView} from "./center/UpdateView";
+import {UpdateView} from "./component/UpdateView";
 
 /**
  * Prop 类型
